@@ -14,6 +14,9 @@ BUILD_DIR = .build
 C_SOURCES += Application/main.c
 C_SOURCES += Common/system_stm32h7xx_dualcore_boot_cm4_cm7.c
 C_SOURCES += Drivers/GPIO/GPIO_h7.c
+C_SOURCES += Drivers/usart_dlt/usart1.c
+C_SOURCES += Application/syscalls.c
+C_SOURCES += Application/sysmem.c
 
 # ASM sources
 ASM_SOURCES += Startup/_startup_CM7_stm32h747XIH6.s
@@ -50,6 +53,7 @@ AS_INCLUDES =
 C_INCLUDES += -IDrivers/CMSIS/Device/ST/STM32H7xx/Include
 C_INCLUDES += -IDrivers/CMSIS/Include
 C_INCLUDES += -IDrivers/GPIO
+C_INCLUDES += -IDrivers/usart_dlt
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections

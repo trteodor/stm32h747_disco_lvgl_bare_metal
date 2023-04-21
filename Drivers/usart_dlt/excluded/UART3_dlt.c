@@ -36,13 +36,14 @@ void UpdateDltTimeStamp(uint32_t TickCount)
 
 void UART3InitTransmitWithDMAand_ucDLTlib(void)
 {
-	RCC->AHB1ENR |= RCC_AHB1ENR_GPIODEN;
-	GPIOD->MODER &= ~(1U<<16);
-	GPIOD->MODER |= (1U<<17);
-	GPIOD->AFR[1]  |=(1U<<0);
-	GPIOD->AFR[1]  |=(1U<<1);
-	GPIOD->AFR[1]  |=(1U<<2);
-	GPIOD->AFR[1]  &=~(1U<<3);
+	RCC->AHB4ENR |= RCC_AHB4ENR_GPIOAEN;
+    GPIO_InitTypeDef GPIO_InitStruct;
+    GPIO_InitStruct.Pin = STLINK_TX_Pin|STLINK_RX_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF7_USART1;
+
 
 /*USART*/
 	RCC->APB1ENR |= RCC_APB1ENR_USART3EN;

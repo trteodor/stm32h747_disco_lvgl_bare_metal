@@ -1,6 +1,7 @@
 #include "stdint.h"
 #include "stm32h747xx.h"
 #include "GPIO_h7.h"
+#include "stdio.h"
 
 static volatile uint32_t Interator_u32=0U;
 
@@ -24,12 +25,12 @@ int main()
 
     GPIO_Init(LED3_GPIO_Port, &GPIO_InitStruct);
     GPIO_PinReset(LED3_GPIO_Port,LED2_Pin);
-    // GPIO_PinSet(LED3_GPIO_Port,LED2_Pin);
+    uart1_tx_init();
 
     while(1)
     {
         for(volatile uint32_t i=0; i<1000000; i++){}
-
+        printf("Hello World %lu\n\r",Interator_u32);
         tooglePIN(LED3_GPIO_Port,LED2_Pin);
         Interator_u32++;
     }
