@@ -13,7 +13,7 @@
             "type": "cortex-debug",
             "servertype": "openocd",
             "device": "STM32F747XI",
-            "svdFile": "STM32F7x7.svd",
+            "svdFile": "STM32H7x7_CM7.svd",
             "configFiles": [
                 "interface/stlink.cfg",
                 "target/stm32h7x.cfg"

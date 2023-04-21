@@ -13,7 +13,7 @@
                 // "DEBUG",
                 "UNICODE",
                 "_UNICODE",
-                "STM32F767xx"
+                "STM32H747xx"
             ],
             "intelliSenseMode": "gcc-x64",
             "compilerPath": "D:/GNU_Tools/GNU Arm Embedded Toolchain/10 2021.10/bin/arm-none-eabi-gcc.exe", //dk why we have pass full path

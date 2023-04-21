@@ -37,7 +37,9 @@
         "ethernetif.h": "c",
         "times.h": "c",
         "http_process.h": "c",
-        "stdint.h": "c"
+        "stdint.h": "c",
+        "stm32h7xx.h": "c",
+        "gpio_h7.h": "c"
     },
     "cortex-debug.variableUseNaturalFormat": false
 }

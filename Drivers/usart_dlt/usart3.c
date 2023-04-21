@@ -1,6 +1,11 @@
-#include "stm32f7xx.h"
+#include "stm32h7xx.h"
+#include "GPIO_h7.h"
 #include "stdbool.h"
-#include "System.h"
+
+#define STLINK_TX_Pin GPIO_PIN_10
+#define STLINK_TX_GPIO_Port GPIOA
+#define STLINK_RX_Pin GPIO_PIN_9
+#define STLINK_RX_GPIO_Port GPIOA
 
 static void uart_write(uint8_t value)
 {
