@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "STM32F767_D",
+            "name": "STM32H747_D",
             "cwd": "${workspaceRoot}",
             "executable": "./.build/h747disco_tut.elf",
             "preLaunchTask": "build_eth_tut",

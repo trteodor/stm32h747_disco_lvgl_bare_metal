@@ -1,7 +1,7 @@
 {
     "configurations": [
         {
-            "name": "STM32 F7",
+            "name": "STM32 H7",
             "includePath": [
                 "${workspaceFolder}/Application/**",
                 "${workspaceFolder}/Drivers/**",

@@ -14,6 +14,7 @@ BUILD_DIR = .build
 C_SOURCES += Application/main.c
 C_SOURCES += Common/system_stm32h7xx_dualcore_boot_cm4_cm7.c
 C_SOURCES += Drivers/GPIO/GPIO_h7.c
+C_SOURCES += Drivers/System/System.c
 # C_SOURCES += Drivers/usart_dlt/usart1.c
 C_SOURCES += Drivers/usart_dlt/UART1_dlt.c
 C_SOURCES += Application/syscalls.c
@@ -58,6 +59,7 @@ C_INCLUDES += -IDrivers/GPIO
 C_INCLUDES += -IDrivers/usart_dlt
 C_INCLUDES += -IMiddlewares/DLTuc/src
 C_INCLUDES += -IConfig
+C_INCLUDES += -IDrivers/System
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections

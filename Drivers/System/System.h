@@ -7,7 +7,6 @@ void ConfigSysTick1ms(void);
 uint32_t GetSysTime(void);
 void RegisterSysTickCallBack(void(*SysTickCallBack)(uint32_t TickCount));
 void DelayMs(uint32_t Ticks);
-void PLL_Config200Mhz(void);
-void EnablePwrDomain(void);
+// void PLL_Config200Mhz(void);
 
 #endif 

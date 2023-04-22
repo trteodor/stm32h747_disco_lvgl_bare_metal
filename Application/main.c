@@ -4,8 +4,7 @@
 #include "stdio.h"
 #include "UART1_dlt.h"
 #include "DLTuc.h"
-
-static volatile uint32_t Interator_u32=0U;
+#include "System.h"
 
 #define LED1_Pin GPIO_PIN_12
 #define LED1_GPIO_Port GPIOI
@@ -29,13 +28,17 @@ int main()
     GPIO_PinReset(LED3_GPIO_Port,LED2_Pin);
     // uart1_tx_init();
     UART1InitTransmitWithDMAand_ucDLTlib();
+    ConfigSysTick1ms();
+
+    static uint32_t HelpTimer = 0u;
 
     while(1)
     {
-        for(volatile uint32_t i=0; i<1000000; i++){}
-        // printf("Hello World %lu\n\r",Interator_u32);
-        LOG("Hello DLT!");
-        tooglePIN(LED3_GPIO_Port,LED2_Pin);
-        Interator_u32++;
+        if( GetSysTime() - HelpTimer > 1000)
+            {
+                    HelpTimer = GetSysTime();
+                    LOG("Hello DLT! %lu ", GetSysTime() );
+                    tooglePIN(LED3_GPIO_Port,LED2_Pin);
+            }
     }
 }

@@ -3,7 +3,7 @@
 
 #include "GPIO_h7.h"
 #include "DLTuc.h"
-// #include "System.h"
+#include "System.h"
 
 #define STLINK_TX_Pin GPIO_PIN_10
 #define STLINK_TX_GPIO_Port GPIOA
@@ -28,8 +28,6 @@ void UART1_DMA_Transmit(uint8_t *Buff, uint8_t size)
 		/*Wait for transmit end...*/
 	}
 
-	// DLTuc_UpdateTimeStampMs(GetSysTime() ); /*Not best way but for me it's inaf solution*/
-
 	DMA1_Stream3->NDTR = size;
 	DMA1_Stream3->PAR = (volatile long unsigned int)&USART1->TDR;
 	DMA1_Stream3->M0AR =  (volatile long unsigned int)Buff;
@@ -38,13 +36,9 @@ void UART1_DMA_Transmit(uint8_t *Buff, uint8_t size)
 	USART1->CR3 |= USART_CR3_DMAT;
 }
 
-void UpdateDltTimeStamp(uint32_t TickCount)
-{
-	DLTuc_UpdateTimeStampMs(TickCount);
-}
-
 void UART1InitTransmitWithDMAand_ucDLTlib(void)
 {
+/*GPIO*/
 	RCC->AHB4ENR |= RCC_AHB4ENR_GPIOAEN;
     GPIO_InitTypeDef GPIO_InitStruct;
     GPIO_InitStruct.Pin = STLINK_TX_Pin|STLINK_RX_Pin;
@@ -59,16 +53,17 @@ void UART1InitTransmitWithDMAand_ucDLTlib(void)
 	USART1->ISR = 0;
 	USART1->BRR = 555;
 	USART1->CR1 = USART_CR1_UE | USART_CR1_TE | USART_CR1_RE | USART_CR1_TXEIE | USART_CR1_RXNEIE | USART_CR1_UE;
-	/*DMA_Cfg*/ 	/*DMA1 Channel 4, stream5 RX, stream6 TX*/
-	/* Only transmit acutally is used and configured */
+
+/*DMA*/
 	RCC->AHB1ENR  |= RCC_AHB1ENR_DMA1EN;
 	DMA1_Stream3->CR = DMA_SxCR_TCIE | DMA_SxCR_DIR_0 | DMA_SxCR_MINC | DMA_SxCR_TRBUFF;
 	DMAMUX1_Channel3->CCR = 0x2a; /*Szybciej byloby przeczytac dokumentacje ale db dziala*/
 	NVIC_SetPriority (DMA1_Stream3_IRQn, (1UL << __NVIC_PRIO_BITS) - 1UL); 
 	NVIC_EnableIRQ(DMA1_Stream3_IRQn);
 
+/*DLTuc*/
 	/*Register Low Level Transmit function for ucDltLibrary*/
 	DLTuc_RegisterTransmitSerialDataCallback(UART1_DMA_Transmit);
-	// RegisterSysTickCallBack(UpdateDltTimeStamp);
+	DLTuc_RegisterGetTimeStampMsCallback(GetSysTime);
 	/*Now ucDLTlib is ready to work!*/
 }
