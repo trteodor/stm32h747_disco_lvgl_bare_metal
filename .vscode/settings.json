@@ -39,7 +39,8 @@
         "http_process.h": "c",
         "stdint.h": "c",
         "stm32h7xx.h": "c",
-        "gpio_h7.h": "c"
+        "gpio_h7.h": "c",
+        "uart1_dlt.h": "c"
     },
     "cortex-debug.variableUseNaturalFormat": false
 }

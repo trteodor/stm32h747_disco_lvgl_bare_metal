@@ -1,0 +1,3 @@
+[submodule "Middlewares/DLTuc"]
+	path = Middlewares/DLTuc
+	url = https://github.com/trteodor/DLTuc_lib
