@@ -51,7 +51,8 @@ void UART1InitTransmitWithDMAand_ucDLTlib(void)
 /*USART*/
 	RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
 	USART1->ISR = 0;
-	USART1->BRR = 555;
+	USART1->BRR = 868;
+	// USART1->BRR = 555;
 	USART1->CR1 = USART_CR1_UE | USART_CR1_TE | USART_CR1_RE | USART_CR1_TXEIE | USART_CR1_RXNEIE | USART_CR1_UE;
 
 /*DMA*/
@@ -62,7 +63,7 @@ void UART1InitTransmitWithDMAand_ucDLTlib(void)
 	NVIC_EnableIRQ(DMA1_Stream3_IRQn);
 
 /*DLTuc*/
-	/*Register Low Level Transmit function for ucDltLibrary*/
+	/*Register Low Level Transmit function for DLTuc Library*/
 	DLTuc_RegisterTransmitSerialDataCallback(UART1_DMA_Transmit);
 	DLTuc_RegisterGetTimeStampMsCallback(GetSysTime);
 	/*Now ucDLTlib is ready to work!*/

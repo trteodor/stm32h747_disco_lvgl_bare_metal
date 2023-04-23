@@ -40,7 +40,9 @@
         "stdint.h": "c",
         "stm32h7xx.h": "c",
         "gpio_h7.h": "c",
-        "uart1_dlt.h": "c"
+        "uart1_dlt.h": "c",
+        "system.h": "c",
+        "stm32h747xx.h": "c"
     },
-    "cortex-debug.variableUseNaturalFormat": false
+    "cortex-debug.variableUseNaturalFormat": true
 }

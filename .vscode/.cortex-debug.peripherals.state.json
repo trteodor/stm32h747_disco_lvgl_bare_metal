@@ -1,1 +1,1 @@
-[{"node":"GPIOI.GPIO_MODER","expanded":true,"format":0}]
+[{"node":"GPIOI.GPIO_MODER","expanded":true,"format":0},{"node":"PWR","expanded":true,"format":0,"pinned":false},{"node":"PWR.PWR_D3CR","expanded":true,"format":0}]
