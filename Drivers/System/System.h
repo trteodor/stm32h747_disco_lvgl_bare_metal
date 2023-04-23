@@ -7,6 +7,6 @@ void ConfigSysTick1ms(void);
 uint32_t GetSysTime(void);
 void RegisterSysTickCallBack(void(*SysTickCallBack)(uint32_t TickCount));
 void DelayMs(uint32_t Ticks);
-// void PLL_Config400Mhz(void);
+void PLL_Config480Mhz(void);
 
 #endif 

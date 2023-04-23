@@ -24,12 +24,10 @@
 #define RCC_PLLSOURCE_HSE              (0x00000002U)
 #define RCC_FLAG_PLLRDY                ((uint8_t)0x39)
 
-
-
-
-/**/
-
-
+/*
+*
+*
+*/
 
 volatile uint32_t SysTime=0;
 static void (*StSysTickCallBack)(uint32_t TickCount) = NULL;
@@ -38,7 +36,7 @@ void SysTick_Handler(void);
 /**********************************************************************************************/
 void ConfigSysTick1ms(void)
 {
-	SysTick_Config(400000/8);
+	SysTick_Config(480000/8);
 	SysTick->CTRL &= ~SysTick_CTRL_CLKSOURCE_Msk;
 	NVIC_SetPriority(SysTick_IRQn, (1UL << __NVIC_PRIO_BITS) - 1UL);
 }
@@ -72,7 +70,7 @@ void DelayMs(uint32_t Ticks)
 	}
 }
 /**********************************************************************************************/
-void PLL_Config400Mhz(void)
+void PLL_Config480Mhz(void)
 {
 	__IO uint32_t timeout_c = 0;
 
@@ -90,7 +88,7 @@ void PLL_Config400Mhz(void)
 		MODIFY_REG(RCC->PLLCKSELR, RCC_PLLCKSELR_PLLSRC, RCC_PLLSOURCE_HSE);
 		CLEAR_BIT(RCC->CR, RCC_CR_PLL1ON); /*Disable pll*/
 		while(__RCC_GET_FLAG(RCC_FLAG_PLLRDY) != 0U){}
-		__RCC_PLL_CONFIG(RCC_PLLSOURCE_HSE,5,160,2,6,2);
+		__RCC_PLL_CONFIG(RCC_PLLSOURCE_HSE,5,192,2,5,2);
 		CLEAR_BIT(RCC->PLLCFGR, RCC_PLLCFGR_PLL1FRACEN);
 		MODIFY_REG(RCC->PLL1FRACR, RCC_PLL1FRACR_FRACN1, (uint32_t)(0U) << RCC_PLL1FRACR_FRACN1_Pos);
 		MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLL1RGE, (RCC_PLLCFGR_PLL2RGE_3));

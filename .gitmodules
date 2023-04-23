@@ -1,3 +1,6 @@
 [submodule "Middlewares/DLTuc"]
 	path = Middlewares/DLTuc
 	url = https://github.com/trteodor/DLTuc_lib
+[submodule "Middlewares/lvgl"]
+	path = Middlewares/lvgl
+	url = https://github.com/lvgl/lvgl.git

@@ -31,10 +31,21 @@ int main()
 {
     LedsInit();
     GPIO_PinReset(LED3_GPIO_Port,LED2_Pin);
-
-    PLL_Config400Mhz();
+    PLL_Config480Mhz();
     ConfigSysTick1ms();
     UART1InitTransmitWithDMAand_ucDLTlib();
+
+    // MX_FMC_Init();
+    // MX_DMA2D_Init();
+    // MX_DSIHOST_DSI_Init();
+    // MX_LTDC_Init();
+    // DISP_LCD_Init(0, LCD_ORIENTATION_LANDSCAPE,&hdsi, &hltdc);
+
+    //    BSP_TS_InitIT_OTM8009a();
+
+    //  UTIL_LCD_SetFuncDriver(&LCD_Driver);
+    //  UTIL_LCD_SetFont(&UTIL_LCD_DEFAULT_FONT);
+    //  UTIL_LCD_Clear(UTIL_LCD_COLOR_LIGHTMAGENTA);
 
     static uint32_t HelpTimer = 0u;
     uint32_t Iterator = 0U;

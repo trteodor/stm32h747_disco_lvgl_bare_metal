@@ -11,14 +11,14 @@ BUILD_DIR = .build
 
 
 # C sources
-C_SOURCES += Application/main.c
+C_SOURCES += APP_CM7/main.c
 C_SOURCES += Common/system_stm32h7xx_dualcore_boot_cm4_cm7.c
+C_SOURCES += Common/syscalls.c
+C_SOURCES += Common/sysmem.c
 C_SOURCES += Drivers/GPIO/GPIO_h7.c
 C_SOURCES += Drivers/System/System.c
 # C_SOURCES += Drivers/usart_dlt/usart1.c
 C_SOURCES += Drivers/usart_dlt/UART1_dlt.c
-C_SOURCES += Application/syscalls.c
-C_SOURCES += Application/sysmem.c
 C_SOURCES += Middlewares/DLTuc/src/DLTuc.c
 
 # ASM sources
