@@ -17,6 +17,8 @@ C_SOURCES += Common/syscalls.c
 C_SOURCES += Common/sysmem.c
 C_SOURCES += Drivers/GPIO/GPIO_h7.c
 C_SOURCES += Drivers/System/System.c
+C_SOURCES += Drivers/SDRAM/sd_ram.c
+C_SOURCES += Drivers/SDRAM/is42s32800j/is42s32800j.c
 # C_SOURCES += Drivers/usart_dlt/usart1.c
 C_SOURCES += Drivers/usart_dlt/UART1_dlt.c
 C_SOURCES += Middlewares/DLTuc/src/DLTuc.c
@@ -60,6 +62,8 @@ C_INCLUDES += -IDrivers/usart_dlt
 C_INCLUDES += -IMiddlewares/DLTuc/src
 C_INCLUDES += -IConfig
 C_INCLUDES += -IDrivers/System
+C_INCLUDES += -IDrivers/SDRAM
+C_INCLUDES += -IDrivers/SDRAM/is42s32800j
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
@@ -127,12 +131,12 @@ $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile
 
 $(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 	$(HEX) $< $@
-	
+
 $(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
-	$(BIN) $< $@	
-	
+	$(BIN) $< $@
+
 $(BUILD_DIR):
-	mkdir $@		
+	mkdir $@
 
 
 clean:

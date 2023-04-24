@@ -5,6 +5,9 @@
 #include "UART1_dlt.h"
 #include "DLTuc.h"
 #include "System.h"
+#include "sd_ram.h"
+
+#define SW_VERSION "001"
 
 /******************************************************************/
 #define LED1_Pin GPIO_PIN_12
@@ -34,15 +37,16 @@ int main()
     PLL_Config480Mhz();
     ConfigSysTick1ms();
     UART1InitTransmitWithDMAand_ucDLTlib();
+    LOG("Compilation date: %s time: %s Sw_ver: %s", __DATE__, __TIME__,SW_VERSION);
+    SDRAM_FMC_Init();
+    SDRAM_demo();
 
     // MX_FMC_Init();
     // MX_DMA2D_Init();
     // MX_DSIHOST_DSI_Init();
     // MX_LTDC_Init();
     // DISP_LCD_Init(0, LCD_ORIENTATION_LANDSCAPE,&hdsi, &hltdc);
-
-    //    BSP_TS_InitIT_OTM8009a();
-
+    // BSP_TS_InitIT_OTM8009a();
     //  UTIL_LCD_SetFuncDriver(&LCD_Driver);
     //  UTIL_LCD_SetFont(&UTIL_LCD_DEFAULT_FONT);
     //  UTIL_LCD_Clear(UTIL_LCD_COLOR_LIGHTMAGENTA);
@@ -57,7 +61,6 @@ int main()
             HelpTimer = GetSysTime();
             LOG("Hello DLT! %lu Iterator: %d", GetSysTime() ,Iterator);
             tooglePIN(LED3_GPIO_Port,LED2_Pin);
-
         }
         Iterator++;
     }
