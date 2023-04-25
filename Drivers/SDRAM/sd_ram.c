@@ -164,8 +164,6 @@ static void FMC_MspInit(void){
 
 
 /****************************************/
-/*Test functions....
-/**/
 /*
 *
 */
@@ -234,7 +232,7 @@ static uint8_t Buffercmp(uint32_t* pBuffer1, uint32_t* pBuffer2, uint16_t Buffer
   * @param  None
   * @retval None
   */
-void SDRAM_demo (void)
+void SDRAM_test (void)
 {
     #define SDRAM_DEVICE_ADDR         0xD0000000U
     #define SDRAM_DEVICE_SIZE         0x2000000U

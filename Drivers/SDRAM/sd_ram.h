@@ -15,7 +15,7 @@ typedef struct
 } FMC_SDRAM_TimingTypeDef;
 
 void SDRAM_FMC_Init(void);
-void SDRAM_demo (void);
+void SDRAM_test (void);
 
 
 #define GPIO_AF12_FMC           ((uint8_t)0x0C)  /* FMC Alternate Function mapping     */

@@ -21,6 +21,8 @@ C_SOURCES += Drivers/SDRAM/sd_ram.c
 C_SOURCES += Drivers/SDRAM/is42s32800j/is42s32800j.c
 # C_SOURCES += Drivers/usart_dlt/usart1.c
 C_SOURCES += Drivers/usart_dlt/UART1_dlt.c
+C_SOURCES += Drivers/Disp_OTM8009A/dsihost.c
+C_SOURCES += Drivers/DMA2d/dma2d.c
 C_SOURCES += Middlewares/DLTuc/src/DLTuc.c
 
 # ASM sources
@@ -64,6 +66,8 @@ C_INCLUDES += -IConfig
 C_INCLUDES += -IDrivers/System
 C_INCLUDES += -IDrivers/SDRAM
 C_INCLUDES += -IDrivers/SDRAM/is42s32800j
+C_INCLUDES += -IDrivers/Disp_OTM8009A
+C_INCLUDES += -IDrivers/DMA2d
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
@@ -93,8 +97,6 @@ LDFLAGS = $(MCU) -static -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-
 
 all: flash $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
 	@echo -----------------------------------------------------
-	@echo If You Changed HTML you should update  file "fsdata.c"!
-	@echo To do it you can use call the target: make html_update
 	@echo -----------------------------------------------------
 
 # flash: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin

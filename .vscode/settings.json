@@ -42,7 +42,8 @@
         "gpio_h7.h": "c",
         "uart1_dlt.h": "c",
         "system.h": "c",
-        "stm32h747xx.h": "c"
+        "stm32h747xx.h": "c",
+        "dma2d.h": "c"
     },
     "cortex-debug.variableUseNaturalFormat": true
 }
