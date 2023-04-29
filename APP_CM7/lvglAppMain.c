@@ -62,8 +62,8 @@ void LvglInitApp(void)
       lv_disp_drv_register(&disp_drv); /*Register the driver and save the created display objects*/
 
 
-     lv_demo_stress();
-	//  lv_demo_benchmark();
+    //  lv_demo_stress();
+	 lv_demo_benchmark();
     //   ui_init();
     //  lv_example_get_started_3();
 }
