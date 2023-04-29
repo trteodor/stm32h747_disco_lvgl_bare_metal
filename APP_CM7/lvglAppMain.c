@@ -63,6 +63,7 @@ void LvglInitApp(void)
 
 
      lv_demo_stress();
+	//  lv_demo_benchmark();
     //   ui_init();
     //  lv_example_get_started_3();
 }

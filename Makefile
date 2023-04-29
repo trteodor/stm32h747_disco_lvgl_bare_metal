@@ -15,6 +15,8 @@ lvgl_src_ex1   = $(wildcard Middlewares/lvgl/examples/get_started/)
 
 lvgl_src_demos       = $(wildcard Middlewares/lvgl/demos/)
 lvgl_src_demos_exStr = $(wildcard Middlewares/lvgl/demos/stress/)
+lvgl_src_demos_exBen = $(wildcard Middlewares/lvgl/demos/benchmark/)
+lvgl_src_demos_exBenAss = $(wildcard Middlewares/lvgl/demos/benchmark/assets/)
 
 lvgl_src = $(wildcard Middlewares/lvgl/src/*/)
 lvgl_src1 = $(wildcard Middlewares/lvgl/src/*/*/)
@@ -36,6 +38,8 @@ DIRECTORIES_LVGL_OUT = $(sort $(dir $(wildcard $(DIRECTORIES_LVGL))))
 LVGL_SRCC := $(foreach dir,$(DIRECTORIES_LVGL_OUT),$(wildcard $(dir)*.c))
 LVGL_SRCC += $(foreach dir,$(lvgl_src_ex1),$(wildcard $(dir)*.c))
 LVGL_SRCC += $(foreach dir,$(lvgl_src_demos_exStr),$(wildcard $(dir)*.c))
+LVGL_SRCC += $(foreach dir,$(lvgl_src_demos_exBen),$(wildcard $(dir)*.c))
+LVGL_SRCC += $(foreach dir,$(lvgl_src_demos_exBenAss),$(wildcard $(dir)*.c))
 
 LVGL_INC = $(foreach dir, $(DIRECTORIES_LVGL_OUT), $(addprefix -I, $(dir)))
 
