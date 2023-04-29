@@ -13,7 +13,7 @@
 
 #include "otm8009a.h"
 
-
+void OTM8009A_DisplayRefreshCommandMode(void* BuffPtr);
 
 
 #define LCD_LAYER_0_ADDRESS                 0xD0000000U

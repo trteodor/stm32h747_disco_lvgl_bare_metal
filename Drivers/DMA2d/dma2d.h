@@ -3,6 +3,8 @@
 #define __DMA2D_H__
 
 void DMA2D_Init(void);
+void DMA2D_StartIT(void);
+
 void DMA2D_InitRefresh(
                         uint32_t InitMode,
                         uint32_t LineOffsetMode,

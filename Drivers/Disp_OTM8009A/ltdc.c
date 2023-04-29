@@ -3,7 +3,7 @@
 #include "ltdc.h"
 
 
-
+#define SDRAM_DEVICE_ADDR_LTDC         0xD0000000U
 
 
 void LTDC_MspInit(void);
@@ -14,26 +14,31 @@ void LTDC_Init(void)
 {
     LTDC_MspInit();
     LTDC_PeriphInit();
-
-    LTDC_LayerCfgTypeDef pLayerCfg = {0};
-    pLayerCfg.WindowX0 = 0;
-    pLayerCfg.WindowX1 = 800;
-    pLayerCfg.WindowY0 = 0;
-    pLayerCfg.WindowY1 = 480;
-    pLayerCfg.PixelFormat = LTDC_PIXEL_FORMAT_ARGB8888;
-    pLayerCfg.Alpha = 255;
-    pLayerCfg.Alpha0 = 0;
-    pLayerCfg.BlendingFactor1 = LTDC_BLENDING_FACTOR1_PAxCA;
-    pLayerCfg.BlendingFactor2 = LTDC_BLENDING_FACTOR2_PAxCA;
-    pLayerCfg.FBStartAdress = 0xD0000000;
-    pLayerCfg.ImageWidth = 800;
-    pLayerCfg.ImageHeight = 480;
-    pLayerCfg.Backcolor.Blue = 20;
-    pLayerCfg.Backcolor.Green = 40;
-    pLayerCfg.Backcolor.Red = 60;
-    LTDC_ConfigLayer(&pLayerCfg, 0);
+    LTDC_LayertCommandModeInit(0,SDRAM_DEVICE_ADDR_LTDC);
 }
 
+void LTDC_LayertCommandModeInit(uint16_t LayerIndex, uint32_t Address)
+{
+    LTDC_LayerCfgTypeDef  layercfg;
+
+  /* Layer Init */
+  layercfg.WindowX0 = 0;
+  layercfg.WindowX1 = 800/2 ;
+  layercfg.WindowY0 = 0;
+  layercfg.WindowY1 = 480; 
+  layercfg.PixelFormat = LTDC_PIXEL_FORMAT_ARGB8888;
+  layercfg.FBStartAdress = Address;
+  layercfg.Alpha = 255;
+  layercfg.Alpha0 = 0;
+  layercfg.Backcolor.Blue = 0;
+  layercfg.Backcolor.Green = 0;
+  layercfg.Backcolor.Red = 0;
+  layercfg.BlendingFactor1 = LTDC_BLENDING_FACTOR1_PAxCA;
+  layercfg.BlendingFactor2 = LTDC_BLENDING_FACTOR2_PAxCA;
+  layercfg.ImageWidth = 800/2;
+  layercfg.ImageHeight = 480;
+  LTDC_ConfigLayer(&layercfg, LayerIndex); 
+}
 
 /*MSP - MCU Support Package.*/
 void LTDC_MspInit(void)
@@ -93,36 +98,56 @@ void LTDC_PeriphInit(void)
     uint32_t tmp;
     uint32_t tmp1;
 
+    LTDC_InitTypeDef LTDC_InitStruct;
+    LTDC_InitStruct.HorizontalSync = HSYNC;
+    LTDC_InitStruct.VerticalSync = VSYNC;
+    LTDC_InitStruct.AccumulatedHBP = HSYNC+HBP;
+    LTDC_InitStruct.AccumulatedVBP = VSYNC+VBP;
+    LTDC_InitStruct.AccumulatedActiveH = VSYNC+VBP+VACT;
+    LTDC_InitStruct.AccumulatedActiveW = HSYNC+HBP+HACT;
+    LTDC_InitStruct.TotalHeigh = VSYNC+VBP+VACT+VFP;
+    LTDC_InitStruct.TotalWidth = HSYNC+HBP+HACT+HFP;
+    /* background value */
+    LTDC_InitStruct.Backcolor.Blue = 0;
+    LTDC_InitStruct.Backcolor.Green = 0;
+    LTDC_InitStruct.Backcolor.Red = 0;
+    /* Polarity */
+    LTDC_InitStruct.HSPolarity = LTDC_HSPOLARITY_AL;
+    LTDC_InitStruct.VSPolarity = LTDC_VSPOLARITY_AL;
+    LTDC_InitStruct.DEPolarity = LTDC_DEPOLARITY_AL;
+    LTDC_InitStruct.PCPolarity = LTDC_PCPOLARITY_IPC;
+
     /* Configure the HS, VS, DE and PC polarity */
     LTDC->GCR &= ~(LTDC_GCR_HSPOL | LTDC_GCR_VSPOL | LTDC_GCR_DEPOL | LTDC_GCR_PCPOL);
-    LTDC->GCR |= (uint32_t)(LTDC_HSPOLARITY_AL | LTDC_VSPOLARITY_AL | \
-                                        LTDC_DEPOLARITY_AL | LTDC_PCPOLARITY_IPC);
+    LTDC->GCR |= (uint32_t)(LTDC_InitStruct.HSPolarity | LTDC_InitStruct.VSPolarity | \
+                                        LTDC_InitStruct.DEPolarity | LTDC_InitStruct.PCPolarity);
 
     /* Set Synchronization size */
     LTDC->SSCR &= ~(LTDC_SSCR_VSH | LTDC_SSCR_HSW);
-    tmp = (LTDC_HORIZONTAL_SYNC << 16U);
-    LTDC->SSCR |= (tmp | LTDC_VERTICAL_SYNC);
+    tmp = (LTDC_InitStruct.HorizontalSync << 16U);
+    LTDC->SSCR |= (tmp | LTDC_InitStruct.VerticalSync);
 
     /* Set Accumulated Back porch */
     LTDC->BPCR &= ~(LTDC_BPCR_AVBP | LTDC_BPCR_AHBP);
-    tmp = (LTDC_ACCUMULATED_HBP << 16U);
-    LTDC->BPCR |= (tmp | LTDC_ACCUMULATED_VBP);
+    tmp = (LTDC_InitStruct.AccumulatedHBP << 16U);
+    LTDC->BPCR |= (tmp | LTDC_InitStruct.AccumulatedVBP);
 
     /* Set Accumulated Active Width */
     LTDC->AWCR &= ~(LTDC_AWCR_AAH | LTDC_AWCR_AAW);
-    tmp = (LTDC_ACCUMULATED_ACTIV_W << 16U);
-    LTDC->AWCR |= (tmp | LTDC_ACCUMULATED_ACTIV_H);
+    tmp = (LTDC_InitStruct.AccumulatedActiveW << 16U);
+    LTDC->AWCR |= (tmp | LTDC_InitStruct.AccumulatedActiveH);
 
     /* Set Total Width */
     LTDC->TWCR &= ~(LTDC_TWCR_TOTALH | LTDC_TWCR_TOTALW);
-    tmp = (LTDC_TOTAL_WIDTH << 16U);
-    LTDC->TWCR |= (tmp | LTDC_TOTAL_HEIGH);
+    tmp = (LTDC_InitStruct.TotalWidth << 16U);
+    LTDC->TWCR |= (tmp | LTDC_InitStruct.TotalHeigh);
 
     /* Set the background color value */
-    tmp = ((uint32_t)(LTDC_BACK_COLOR_GREEN) << 8U);
-    tmp1 = ((uint32_t)(LTDC_BACK_COLOR_RED) << 16U);
+    tmp = ((uint32_t)(LTDC_InitStruct.Backcolor.Green) << 8U);
+    tmp1 = ((uint32_t)(LTDC_InitStruct.Backcolor.Red) << 16U);
     LTDC->BCCR &= ~(LTDC_BCCR_BCBLUE | LTDC_BCCR_BCGREEN | LTDC_BCCR_BCRED);
-    LTDC->BCCR |= (tmp1 | tmp | LTDC_BACK_COLOR_BLUE);
+    LTDC->BCCR |= (tmp1 | tmp | LTDC_InitStruct.Backcolor.Blue);
+
 
     /* Enable the Transfer Error and FIFO underrun interrupts */
     LTDC->IER |= (LTDC_IER_TERRIE | LTDC_IER_FUIE);
@@ -208,4 +233,47 @@ void LTDC_ConfigLayer(LTDC_LayerCfgTypeDef *pLayerCfg, uint32_t LayerIdx)
 
     /* Set the Immediate Reload type */
     LTDC->SRCR = LTDC_SRCR_IMR;
+}
+
+
+
+void LTDC_SetPitch(uint32_t PixelFormatIn, uint32_t LinePitchInPixels, uint32_t LayerIdx)
+{
+  uint32_t tmp;
+  uint32_t pitchUpdate;
+  uint32_t pixelFormat;
+
+  /* get LayerIdx used pixel format */
+  pixelFormat = PixelFormatIn;
+
+  if (pixelFormat == LTDC_PIXEL_FORMAT_ARGB8888)
+  {
+    tmp = 4U;
+  }
+  else if (pixelFormat == LTDC_PIXEL_FORMAT_RGB888)
+  {
+    tmp = 3U;
+  }
+  else if ((pixelFormat == LTDC_PIXEL_FORMAT_ARGB4444) || \
+           (pixelFormat == LTDC_PIXEL_FORMAT_RGB565)   || \
+           (pixelFormat == LTDC_PIXEL_FORMAT_ARGB1555) || \
+           (pixelFormat == LTDC_PIXEL_FORMAT_AL88))
+  {
+    tmp = 2U;
+  }
+  else
+  {
+    tmp = 1U;
+  }
+
+  pitchUpdate = ((LinePitchInPixels * tmp) << 16U);
+
+  /* Clear previously set standard pitch */
+  LTDC_LAYER(LayerIdx)->CFBLR &= ~LTDC_LxCFBLR_CFBP;
+  /* Set the Reload type as immediate update of LTDC pitch configured above */
+  LTDC->SRCR |= LTDC_SRCR_IMR;
+  /* Set new line pitch value */
+  LTDC_LAYER(LayerIdx)->CFBLR |= pitchUpdate;
+  /* Set the Reload type as immediate update of LTDC pitch configured above */
+  LTDC->SRCR |= LTDC_SRCR_IMR;
 }

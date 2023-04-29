@@ -5,27 +5,24 @@
 
 #include "stm32h747xx.h"
 
-#define LTDC_HORIZONTAL_SYNC       1
-#define LTDC_VERTICAL_SYNC         0
-#define LTDC_ACCUMULATED_HBP       35
-#define LTDC_ACCUMULATED_VBP       15
-#define LTDC_ACCUMULATED_ACTIV_W   835
-#define LTDC_ACCUMULATED_ACTIV_H   495
-#define LTDC_TOTAL_WIDTH           869
-#define LTDC_TOTAL_HEIGH           511
-#define LTDC_BACK_COLOR_BLUE       0
-#define LTDC_BACK_COLOR_GREEN      0
-#define LTDC_BACK_COLOR_RED        20
+#define VSYNC           1  
+#define VBP             1 
+#define VFP             1
+#define VACT            480
+#define HSYNC           1
+#define HBP             1
+#define HFP             1
+#define HACT            400      /* !!!! SCREEN DIVIDED INTO 2 AREAS !!!! */
+#define LEFT_AREA         1
+#define RIGHT_AREA        2
+
 
 
 
 
 void LTDC_Init(void);
-
-
-
-
-
+void LTDC_SetPitch(uint32_t PixelFormatIn, uint32_t LinePitchInPixels, uint32_t LayerIdx);
+void LTDC_LayertCommandModeInit(uint16_t LayerIndex, uint32_t Address);
 
 typedef struct
 {
@@ -40,6 +37,62 @@ typedef struct
 
   uint8_t Reserved;                /*!< Reserved 0xFF */
 } LTDC_ColorTypeDef;
+
+
+
+/**
+  * @brief  LTDC Init structure definition
+  */
+typedef struct
+{
+  uint32_t            HSPolarity;                /*!< configures the horizontal synchronization polarity.
+                                                      This parameter can be one value of @ref LTDC_HS_POLARITY */
+
+  uint32_t            VSPolarity;                /*!< configures the vertical synchronization polarity.
+                                                      This parameter can be one value of @ref LTDC_VS_POLARITY */
+
+  uint32_t            DEPolarity;                /*!< configures the data enable polarity.
+                                                      This parameter can be one of value of @ref LTDC_DE_POLARITY */
+
+  uint32_t            PCPolarity;                /*!< configures the pixel clock polarity.
+                                                      This parameter can be one of value of @ref LTDC_PC_POLARITY */
+
+  uint32_t            HorizontalSync;            /*!< configures the number of Horizontal synchronization width.
+                                                      This parameter must be a number between
+                                                      Min_Data = 0x000 and Max_Data = 0xFFF. */
+
+  uint32_t            VerticalSync;              /*!< configures the number of Vertical synchronization height.
+                                                      This parameter must be a number between
+                                                      Min_Data = 0x000 and Max_Data = 0x7FF. */
+
+  uint32_t            AccumulatedHBP;            /*!< configures the accumulated horizontal back porch width.
+                                                      This parameter must be a number between
+                                                      Min_Data = LTDC_HorizontalSync and Max_Data = 0xFFF. */
+
+  uint32_t            AccumulatedVBP;            /*!< configures the accumulated vertical back porch height.
+                                                      This parameter must be a number between
+                                                      Min_Data = LTDC_VerticalSync and Max_Data = 0x7FF. */
+
+  uint32_t            AccumulatedActiveW;        /*!< configures the accumulated active width.
+                                                      This parameter must be a number between
+                                                      Min_Data = LTDC_AccumulatedHBP and Max_Data = 0xFFF. */
+
+  uint32_t            AccumulatedActiveH;        /*!< configures the accumulated active height.
+                                                      This parameter must be a number between
+                                                      Min_Data = LTDC_AccumulatedVBP and Max_Data = 0x7FF. */
+
+  uint32_t            TotalWidth;                /*!< configures the total width.
+                                                      This parameter must be a number between
+                                                      Min_Data = LTDC_AccumulatedActiveW and Max_Data = 0xFFF. */
+
+  uint32_t            TotalHeigh;                /*!< configures the total height.
+                                                      This parameter must be a number between
+                                                      Min_Data = LTDC_AccumulatedActiveH and Max_Data = 0x7FF. */
+
+  LTDC_ColorTypeDef   Backcolor;                 /*!< Configures the background color. */
+} LTDC_InitTypeDef;
+
+
 
 
 /**

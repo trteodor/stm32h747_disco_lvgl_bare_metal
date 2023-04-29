@@ -3,13 +3,15 @@
 #include "dsihost.h"
 #include "DLTuc.h"
 
+
+
 #define DSI_TE_Pin GPIO_PIN_2
 #define DSI_TE_GPIO_Port GPIOJ
 
 static void DSI_ConfigVideoMode(void);
 static void DSIHOST_MspInit(void);
-static void DSI_Host_PeriphInit(void);
-
+// static void DSI_Host_PeriphInit(void);
+// void DSI_ConfigAdaptedCommandMode(void);
 
 /**************************************************************************************/
 
@@ -17,12 +19,24 @@ void DSIHOST_DSI_Init(void)
 {
     DSIHOST_MspInit();
     DSI_Host_PeriphInit();
-    DSI_ConfigVideoMode();
 
-
+  DSI_LPCmdTypeDef LLLPCmd;
+  LLLPCmd.LPGenShortWriteNoP    = DSI_LP_GSW0P_ENABLE;
+  LLLPCmd.LPGenShortWriteOneP   = DSI_LP_GSW1P_ENABLE;
+  LLLPCmd.LPGenShortWriteTwoP   = DSI_LP_GSW2P_ENABLE;
+  LLLPCmd.LPGenShortReadNoP     = DSI_LP_GSR0P_ENABLE;
+  LLLPCmd.LPGenShortReadOneP    = DSI_LP_GSR1P_ENABLE;
+  LLLPCmd.LPGenShortReadTwoP    = DSI_LP_GSR2P_ENABLE;
+  LLLPCmd.LPGenLongWrite        = DSI_LP_GLW_ENABLE;
+  LLLPCmd.LPDcsShortWriteNoP    = DSI_LP_DSW0P_ENABLE;
+  LLLPCmd.LPDcsShortWriteOneP   = DSI_LP_DSW1P_ENABLE;
+  LLLPCmd.LPDcsShortReadNoP     = DSI_LP_DSR0P_ENABLE;
+  LLLPCmd.LPDcsLongWrite        = DSI_LP_DLW_ENABLE;
+    DSI_ConfigAdaptedCommandMode(&LLLPCmd);
+    // DSI_ConfigVideoMode();
 }
 /**************************************************************************************/
-static void DSI_Host_PeriphInit(void)
+void DSI_Host_PeriphInit(void)
 {
     SET_BIT(DSI->WRPCR, DSI_WRPCR_REGEN); /*!< Regulator Enable */
     while ( (DSI->WISR & DSI_WISR_RRS) != DSI_WISR_RRS) {}
@@ -42,6 +56,9 @@ static void DSI_Host_PeriphInit(void)
     DelayMs(1);
     while ( (DSI->WISR & DSI_WISR_PLLLS) != DSI_WISR_PLLLS){}
 
+
+
+  /*************************** Set the PHY parameters ***************************/
     /* D-PHY clock and digital enable*/
     DSI->PCTLR |= (DSI_PCTLR_CKE | DSI_PCTLR_DEN);
 
@@ -184,9 +201,113 @@ static void DSI_Host_PeriphInit(void)
 
     /* Activate/Disactivate additional current path on all lanes */
     DSI->WPCR[1U] &= ~DSI_WPCR1_SDDC;
-    DSI->WPCR[1U] |= ((uint32_t)1 << DSI_WPCR1_SDDC_Pos);
+    /*TODO:*/
+    DSI->WPCR[1U] |= ((uint32_t)0 << DSI_WPCR1_SDDC_Pos);
 }
 
+
+
+void DSI_ConfigAdaptedCommandMode(DSI_LPCmdTypeDef *LPCmd)
+{
+  DSI_CmdCfgTypeDef CmdCfg;
+
+  /* Configure the DSI for Command mode */
+  CmdCfg.VirtualChannelID      = 0;
+  CmdCfg.HSPolarity            = DSI_HSYNC_ACTIVE_HIGH;
+  CmdCfg.VSPolarity            = DSI_VSYNC_ACTIVE_HIGH;
+  CmdCfg.DEPolarity            = DSI_DATA_ENABLE_ACTIVE_HIGH;
+  CmdCfg.ColorCoding           = DSI_RGB888;
+  CmdCfg.CommandSize           = DSI_HACT;
+  CmdCfg.TearingEffectSource   = DSI_TE_EXTERNAL;
+  CmdCfg.TearingEffectPolarity = DSI_TE_RISING_EDGE;
+  CmdCfg.VSyncPol              = DSI_VSYNC_FALLING;
+  CmdCfg.AutomaticRefresh      = DSI_AR_DISABLE;
+  CmdCfg.TEAcknowledgeRequest  = DSI_TE_ACKNOWLEDGE_DISABLE;
+
+/************************************************************************************/
+  //ConfigAdaptedCommandMode
+/************************************************************************************/
+/* Select command mode by setting CMDM and DSIM bits */
+  DSI->MCR |= DSI_MCR_CMDM;
+  DSI->WCFGR &= ~DSI_WCFGR_DSIM;
+  DSI->WCFGR |= DSI_WCFGR_DSIM;
+
+  /* Select the virtual channel for the LTDC interface traffic */
+  DSI->LVCIDR &= ~DSI_LVCIDR_VCID;
+  DSI->LVCIDR |= CmdCfg.VirtualChannelID;
+
+  /* Configure the polarity of control signals */
+  DSI->LPCR &= ~(DSI_LPCR_DEP | DSI_LPCR_VSP | DSI_LPCR_HSP);
+  DSI->LPCR |= (CmdCfg.DEPolarity | CmdCfg.VSPolarity | CmdCfg.HSPolarity);
+
+  /* Select the color coding for the host */
+  DSI->LCOLCR &= ~DSI_LCOLCR_COLC;
+  DSI->LCOLCR |= CmdCfg.ColorCoding;
+
+  /* Select the color coding for the wrapper */
+  DSI->WCFGR &= ~DSI_WCFGR_COLMUX;
+  DSI->WCFGR |= ((CmdCfg.ColorCoding) << 1U);
+
+  /* Configure the maximum allowed size for write memory command */
+  DSI->LCCR &= ~DSI_LCCR_CMDSIZE;
+  DSI->LCCR |= CmdCfg.CommandSize;
+
+  /* Configure the tearing effect source and polarity and select the refresh mode */
+  DSI->WCFGR &= ~(DSI_WCFGR_TESRC | DSI_WCFGR_TEPOL | DSI_WCFGR_AR | DSI_WCFGR_VSPOL);
+  DSI->WCFGR |= (CmdCfg.TearingEffectSource | CmdCfg.TearingEffectPolarity | CmdCfg.AutomaticRefresh |
+                            CmdCfg.VSyncPol);
+
+  /* Configure the tearing effect acknowledge request */
+  DSI->CMCR &= ~DSI_CMCR_TEARE;
+  DSI->CMCR |= CmdCfg.TEAcknowledgeRequest;
+
+  /* Enable the Tearing Effect interrupt */
+   /* Enable the End of Refresh interrupt */
+  DSI->WIER |= (DSI_WIER_TEIE | DSI_WIER_ERIE);
+
+
+/************************************************************************************/
+/************************************************************************************/
+  // ConfigCommand
+/************************************************************************************/
+  /* Select High-speed or Low-power for command transmission */
+  DSI->CMCR &=            ~(DSI_CMCR_GSW0TX | \
+                            DSI_CMCR_GSW1TX | \
+                            DSI_CMCR_GSW2TX | \
+                            DSI_CMCR_GSR0TX | \
+                            DSI_CMCR_GSR1TX | \
+                            DSI_CMCR_GSR2TX | \
+                            DSI_CMCR_GLWTX  | \
+                            DSI_CMCR_DSW0TX | \
+                            DSI_CMCR_DSW1TX | \
+                            DSI_CMCR_DSR0TX | \
+                            DSI_CMCR_DLWTX  | \
+                            DSI_CMCR_MRDPS);
+
+  DSI->CMCR |= (LPCmd->LPGenShortWriteNoP  | \
+                           LPCmd->LPGenShortWriteOneP | \
+                           LPCmd->LPGenShortWriteTwoP | \
+                           LPCmd->LPGenShortReadNoP   | \
+                           LPCmd->LPGenShortReadOneP  | \
+                           LPCmd->LPGenShortReadTwoP  | \
+                           LPCmd->LPGenLongWrite      | \
+                           LPCmd->LPDcsShortWriteNoP  | \
+                           LPCmd->LPDcsShortWriteOneP | \
+                           LPCmd->LPDcsShortReadNoP   | \
+                           LPCmd->LPDcsLongWrite      | \
+                           LPCmd->LPMaxReadPacket);
+
+  /* Configure the acknowledge request after each packet transmission */
+  DSI->CMCR &= ~DSI_CMCR_ARE;
+  DSI->CMCR |= LPCmd->AcknowledgeRequest;
+
+  DSI_ConfigFlowControl(DSI_FLOW_CONTROL_BTA);
+
+  /*DSI_ForceRXLowPower*/
+  DSI->WPCR[1U] &= ~DSI_WPCR1_FLPRXLPM;
+  DSI->WPCR[1U] |= ((uint32_t)1 << 22U);
+
+}
 
 /**************************************************************************************/
 static void DSI_ConfigVideoMode(void)
@@ -353,7 +474,7 @@ static void DSIHOST_MspInit(void)
     GPIO_InitStruct.Pin = DSI_TE_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF13_DSI;
     GPIO_Init(DSI_TE_GPIO_Port, &GPIO_InitStruct);
 
@@ -369,12 +490,55 @@ void DSI_ConfigFlowControl(uint32_t FlowControl)
   DSI->PCR |= FlowControl;
 }
 /**************************************************************************************/
-void DSI_IRQHandler(void)
+void (*TearingEffectCbPtr)(void) = NULL;
+void (*EndOfRefreshCbPtr)(void) = NULL;
+
+void DSI_RegisterIrqCallBacks(void(*TearingEffectCb)(void), void (*EndOfRefreshCb)(void))
 {
-    LOG("DSI_IRQHandler");
+TearingEffectCbPtr = TearingEffectCb;
+EndOfRefreshCbPtr = EndOfRefreshCb;
 }
 
+void DSI_IRQHandler(void)
+{
+  uint32_t ErrorStatus0;
+  uint32_t ErrorStatus1;
+  /* Tearing Effect Interrupt management ***************************************/
+  if ( (DSI->WISR & DSI_WISR_TEIF) != 0U)
+  {
+      if ( (DSI->WIER & DSI_WIER_TEIE) != 0)
+      {
+        /* Clear the Tearing Effect Interrupt Flag */
+        DSI->WIFCR = DSI_WISR_TEIF;
+        /*Call legacy Tearing Effect callback*/
+        if(TearingEffectCbPtr != NULL)
+        {
+          TearingEffectCbPtr();
+        }
+      }
+  }
 
+  /* End of Refresh Interrupt management ***************************************/
+    if ( (DSI->WISR & DSI_WISR_ERIF) != 0U)
+    {
+      if ( (DSI->WIER & DSI_WIER_ERIE) != 0)
+      {
+        /* Clear the End of Refresh Interrupt Flag */
+        DSI->WIFCR = DSI_WISR_ERIF;
+        /*Call Legacy End of refresh callback */
+        if(EndOfRefreshCbPtr != NULL)
+        {
+          EndOfRefreshCbPtr();
+        }
+      }
+    }
+
+    // ErrorStatus0 = DSI->ISR[0U];
+    // ErrorStatus0 &= DSI->IER[0U];
+    // ErrorStatus1 = DSI->ISR[1U];
+    // ErrorStatus1 &= DSI->IER[1U];
+
+}
 
 
 /**************************************************************************************/
@@ -520,4 +684,11 @@ void DSI_Start(void)
   /* Enable the DSI wrapper */
   SET_BIT(DSI->WCR, DSI_WCR_DSIEN);;
 }
+
+void DSI_Refresh(void)
+{
+  /* Update the display */
+  DSI->WCR |= DSI_WCR_LTDCEN;
+}
+
 

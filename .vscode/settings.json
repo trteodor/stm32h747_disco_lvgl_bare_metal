@@ -47,7 +47,10 @@
         "ltdc.h": "c",
         "otm8009a.h": "c",
         "lvgl.h": "c",
-        "otm8009a_wrapper.h": "c"
+        "otm8009a_wrapper.h": "c",
+        "lv_demos.h": "c",
+        "lv_demo_stress.h": "c",
+        "dsihost.h": "c"
     },
     "cortex-debug.variableUseNaturalFormat": true
 }

@@ -1,1 +1,1 @@
-[{"node":"DMA2D","expanded":true,"format":0,"pinned":false},{"node":"DMA2D.DMA2D_CR","expanded":true,"format":0},{"node":"DMA2D.DMA2D_ISR","expanded":true,"format":0},{"node":"DMA2D.DMA2D_IFCR","expanded":true,"format":0},{"node":"GPIOI.GPIO_MODER","expanded":true,"format":0},{"node":"PWR","expanded":true,"format":0,"pinned":false},{"node":"PWR.PWR_D3CR","expanded":true,"format":0}]
+[{"node":"DSIHOST","expanded":true,"format":0,"pinned":false}]

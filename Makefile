@@ -1,7 +1,7 @@
 
 TARGET = h747disco_tut
 DEBUG ?= 1
-OPT = -Og
+OPT = -O2
 # Build path
 BUILD_DIR = .build
 
@@ -10,8 +10,11 @@ BUILD_DIR = .build
 ######################################
 # lvgl START
 ######################################
-lvgl_src_ex = $(wildcard Middlewares/lvgl/examples/)
-lvgl_src_ex1 = $(wildcard Middlewares/lvgl/examples/get_started/)
+lvgl_src_ex    = $(wildcard Middlewares/lvgl/examples/)
+lvgl_src_ex1   = $(wildcard Middlewares/lvgl/examples/get_started/)
+
+lvgl_src_demos       = $(wildcard Middlewares/lvgl/demos/)
+lvgl_src_demos_exStr = $(wildcard Middlewares/lvgl/demos/stress/)
 
 lvgl_src = $(wildcard Middlewares/lvgl/src/*/)
 lvgl_src1 = $(wildcard Middlewares/lvgl/src/*/*/)
@@ -20,6 +23,8 @@ lvgl_src3 = $(wildcard Middlewares/lvgl/src/*/*/*/*)
 
 
 DIRECTORIES_LVGL += $(sort $(dir $(wildcard $(lvgl_src_ex))))
+DIRECTORIES_LVGL += $(sort $(dir $(wildcard $(lvgl_src_demos))))
+# DIRECTORIES_LVGL += $(sort $(dir $(wildcard $(lvgl_src_demos_exStr))))
 #DIRECTORIES_LVGL += $(sort $(dir $(wildcard $(lvgl_src_ex1))))
 DIRECTORIES_LVGL += $(sort $(dir $(wildcard $(lvgl_src))))
 DIRECTORIES_LVGL += $(sort $(dir $(wildcard $(lvgl_src1))))
@@ -30,8 +35,16 @@ DIRECTORIES_LVGL_OUT = $(sort $(dir $(wildcard $(DIRECTORIES_LVGL))))
 
 LVGL_SRCC := $(foreach dir,$(DIRECTORIES_LVGL_OUT),$(wildcard $(dir)*.c))
 LVGL_SRCC += $(foreach dir,$(lvgl_src_ex1),$(wildcard $(dir)*.c))
+LVGL_SRCC += $(foreach dir,$(lvgl_src_demos_exStr),$(wildcard $(dir)*.c))
 
 LVGL_INC = $(foreach dir, $(DIRECTORIES_LVGL_OUT), $(addprefix -I, $(dir)))
+
+# $(info LGVGL_INC: $(LVGL_INC) )
+
+# $(info ----------------)
+# $(info LVGL_SRCC: $(LVGL_SRCC) )
+# $(info ----------------)
+
 ######################################
 # lvgl END
 ######################################
@@ -171,7 +184,7 @@ $(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
 $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile
 	@echo linking...
 	@echo ----------------------
-	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
+	@$(CC) $(OBJECTS) $(LDFLAGS) -o $@
 	$(SZ) $@
 
 $(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf | $(BUILD_DIR)

@@ -2,13 +2,21 @@
 #ifndef __DSI_HOST_H_
 #define __DSI_HOST_H_
 
-#include "stm32h747xx.h"
+#include "stm32h7xx.h"
+
+
+#define DSI_VACT            480
+#define DSI_HACT            400      /* !!!! SCREEN DIVIDED INTO 2 AREAS !!!! */
+
+
 
 
 void DSIHOST_DSI_Init(void);
 void DSI_ConfigFlowControl(uint32_t FlowControl);
 void DSI_Start(void);
 void DSI_ConfigFlowControl(uint32_t FlowControl);
+void DSI_Refresh(void);
+void DSI_RegisterIrqCallBacks(void(*TearingEffectCb)(void), void (*EndOfRefreshCb)(void));
 
 void DSI_Read(
                     uint32_t ChannelNbr,
@@ -113,6 +121,92 @@ typedef struct
 } DSI_VidCfgTypeDef;
 
 
+/**
+  * @brief  DSI Adapted command mode configuration
+  */
+typedef struct
+{
+  uint32_t VirtualChannelID;             /*!< Virtual channel ID                                                */
+
+  uint32_t ColorCoding;                  /*!< Color coding for LTDC interface
+                                              This parameter can be any value of @ref DSI_Color_Coding          */
+
+  uint32_t CommandSize;                  /*!< Maximum allowed size for an LTDC write memory command, measured in
+                                              pixels. This parameter can be any value between 0x00 and 0xFFFFU   */
+
+  uint32_t TearingEffectSource;          /*!< Tearing effect source
+                                              This parameter can be any value of @ref DSI_TearingEffectSource   */
+
+  uint32_t TearingEffectPolarity;        /*!< Tearing effect pin polarity
+                                              This parameter can be any value of @ref DSI_TearingEffectPolarity */
+
+  uint32_t HSPolarity;                   /*!< HSYNC pin polarity
+                                              This parameter can be any value of @ref DSI_HSYNC_Polarity        */
+
+  uint32_t VSPolarity;                   /*!< VSYNC pin polarity
+                                              This parameter can be any value of @ref DSI_VSYNC_Active_Polarity */
+
+  uint32_t DEPolarity;                   /*!< Data Enable pin polarity
+                                              This parameter can be any value of @ref DSI_DATA_ENABLE_Polarity  */
+
+  uint32_t VSyncPol;                     /*!< VSync edge on which the LTDC is halted
+                                              This parameter can be any value of @ref DSI_Vsync_Polarity        */
+
+  uint32_t AutomaticRefresh;             /*!< Automatic refresh mode
+                                              This parameter can be any value of @ref DSI_AutomaticRefresh      */
+
+  uint32_t TEAcknowledgeRequest;         /*!< Tearing Effect Acknowledge Request Enable
+                                              This parameter can be any value of @ref DSI_TE_AcknowledgeRequest */
+
+} DSI_CmdCfgTypeDef;
+
+/**
+  * @brief  DSI command transmission mode configuration
+  */
+typedef struct
+{
+  uint32_t LPGenShortWriteNoP;           /*!< Generic Short Write Zero parameters Transmission
+                                              This parameter can be any value of @ref DSI_LP_LPGenShortWriteNoP  */
+
+  uint32_t LPGenShortWriteOneP;          /*!< Generic Short Write One parameter Transmission
+                                              This parameter can be any value of @ref DSI_LP_LPGenShortWriteOneP */
+
+  uint32_t LPGenShortWriteTwoP;          /*!< Generic Short Write Two parameters Transmission
+                                              This parameter can be any value of @ref DSI_LP_LPGenShortWriteTwoP */
+
+  uint32_t LPGenShortReadNoP;            /*!< Generic Short Read Zero parameters Transmission
+                                              This parameter can be any value of @ref DSI_LP_LPGenShortReadNoP   */
+
+  uint32_t LPGenShortReadOneP;           /*!< Generic Short Read One parameter Transmission
+                                              This parameter can be any value of @ref DSI_LP_LPGenShortReadOneP  */
+
+  uint32_t LPGenShortReadTwoP;           /*!< Generic Short Read Two parameters Transmission
+                                              This parameter can be any value of @ref DSI_LP_LPGenShortReadTwoP  */
+
+  uint32_t LPGenLongWrite;               /*!< Generic Long Write Transmission
+                                              This parameter can be any value of @ref DSI_LP_LPGenLongWrite      */
+
+  uint32_t LPDcsShortWriteNoP;           /*!< DCS Short Write Zero parameters Transmission
+                                              This parameter can be any value of @ref DSI_LP_LPDcsShortWriteNoP  */
+
+  uint32_t LPDcsShortWriteOneP;          /*!< DCS Short Write One parameter Transmission
+                                              This parameter can be any value of @ref DSI_LP_LPDcsShortWriteOneP */
+
+  uint32_t LPDcsShortReadNoP;            /*!< DCS Short Read Zero parameters Transmission
+                                              This parameter can be any value of @ref DSI_LP_LPDcsShortReadNoP   */
+
+  uint32_t LPDcsLongWrite;               /*!< DCS Long Write Transmission
+                                              This parameter can be any value of @ref DSI_LP_LPDcsLongWrite      */
+
+  uint32_t LPMaxReadPacket;              /*!< Maximum Read Packet Size Transmission
+                                              This parameter can be any value of @ref DSI_LP_LPMaxReadPacket     */
+
+  uint32_t AcknowledgeRequest;           /*!< Acknowledge Request Enable
+                                              This parameter can be any value of @ref DSI_AcknowledgeRequest     */
+
+} DSI_LPCmdTypeDef;
+
+
 
 #define DSI_RGB565                 0x00000000U /*!< The values 0x00000001 and 0x00000002 can also be used for the RGB565 color mode configuration */
 #define DSI_RGB666                 0x00000003U /*!< The value 0x00000004 can also be used for the RGB666 color mode configuration                 */
@@ -157,6 +251,63 @@ typedef struct
 
 #define DSI_FBTAA_DISABLE        0x00000000U
 #define DSI_FBTAA_ENABLE         DSI_VMCR_FBTAAE
+
+#define DSI_TE_DSILINK           0x00000000U
+#define DSI_TE_EXTERNAL          DSI_WCFGR_TESRC
+
+#define DSI_TE_RISING_EDGE       0x00000000U
+#define DSI_TE_FALLING_EDGE      DSI_WCFGR_TEPOL
+
+#define DSI_VSYNC_FALLING        0x00000000U
+#define DSI_VSYNC_RISING         DSI_WCFGR_VSPOL
+
+#define DSI_AR_DISABLE           0x00000000U
+#define DSI_AR_ENABLE            DSI_WCFGR_AR
+
+#define DSI_TE_ACKNOWLEDGE_DISABLE 0x00000000U
+#define DSI_TE_ACKNOWLEDGE_ENABLE  DSI_CMCR_TEARE
+
+#define DSI_LP_GSW0P_DISABLE     0x00000000U
+#define DSI_LP_GSW0P_ENABLE      DSI_CMCR_GSW0TX
+
+#define DSI_LP_GSW1P_DISABLE     0x00000000U
+#define DSI_LP_GSW1P_ENABLE      DSI_CMCR_GSW1TX
+
+#define DSI_LP_GSW2P_DISABLE     0x00000000U
+#define DSI_LP_GSW2P_ENABLE      DSI_CMCR_GSW2TX
+
+#define DSI_LP_GSR0P_DISABLE     0x00000000U
+#define DSI_LP_GSR0P_ENABLE      DSI_CMCR_GSR0TX
+
+#define DSI_LP_GSR1P_DISABLE     0x00000000U
+#define DSI_LP_GSR1P_ENABLE      DSI_CMCR_GSR1TX
+
+#define DSI_LP_GSR2P_DISABLE     0x00000000U
+#define DSI_LP_GSR2P_ENABLE      DSI_CMCR_GSR2TX
+
+#define DSI_LP_GLW_DISABLE       0x00000000U
+#define DSI_LP_GLW_ENABLE        DSI_CMCR_GLWTX
+
+#define DSI_LP_DSW0P_DISABLE     0x00000000U
+#define DSI_LP_DSW0P_ENABLE      DSI_CMCR_DSW0TX
+
+#define DSI_LP_DSW1P_DISABLE     0x00000000U
+#define DSI_LP_DSW1P_ENABLE      DSI_CMCR_DSW1TX
+
+#define DSI_LP_DSR0P_DISABLE     0x00000000U
+#define DSI_LP_DSR0P_ENABLE      DSI_CMCR_DSR0TX
+
+#define DSI_LP_DLW_DISABLE       0x00000000U
+#define DSI_LP_DLW_ENABLE        DSI_CMCR_DLWTX
+
+
+
+
+
+
+
+
+
 
 
 
@@ -214,6 +365,43 @@ typedef struct
 
 
 #define GPIO_AF13_DSI           ((uint8_t)0x0D)   /* DSI Alternate Function mapping   */
+
+#define __DSI_MASK_TE()   (GPIOJ->AFR[0] &= (0xFFFFF0FFU))   /* Mask DSI TearingEffect Pin*/
+#define __DSI_UNMASK_TE() (GPIOJ->AFR[0] |= ((uint32_t)(GPIO_AF13_DSI) << 8)) /* UnMask DSI TearingEffect Pin*/
+
+
+#define __DSI_WRAPPER_ENABLE() do { \
+                                                  __IO uint32_t tmpreg = 0x00U; \
+                                                  SET_BIT(DSI->WCR, DSI_WCR_DSIEN);\
+                                                  /* Delay after an DSI warpper enabling */ \
+                                                  tmpreg = READ_BIT(DSI->WCR, DSI_WCR_DSIEN);\
+                                                  (void)(tmpreg); \
+                                                } while(0U)
+
+#define __DSI_WRAPPER_DISABLE() do { \
+                                                   __IO uint32_t tmpreg = 0x00U; \
+                                                   CLEAR_BIT(DSI->WCR, DSI_WCR_DSIEN);\
+                                                   /* Delay after an DSI warpper disabling*/ \
+                                                   tmpreg = READ_BIT(DSI->WCR, DSI_WCR_DSIEN);\
+                                                   (void)(tmpreg); \
+                                                 } while(0U)
+
+
+
+
+
+
+
+
+
+
+
+
+
+void DSI_Host_PeriphInit(void);
+void DSI_ConfigAdaptedCommandMode(DSI_LPCmdTypeDef *LPCmd);
+
+
 
 
 

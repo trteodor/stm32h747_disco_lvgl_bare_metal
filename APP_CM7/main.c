@@ -57,35 +57,26 @@ int main()
     SDRAM_FMC_Init();
     SDRAM_test();
     DSIHOST_DSI_Init();
-    DMA2D_Init();
     LTDC_Init();
+
+    DMA2D_Init();
+
     OTM8009A_DISP_LCD_Init(0, LCD_ORIENTATION_LANDSCAPE);
     // BSP_TS_InitIT_OTM8009a();
-/**/
-    // FillBufer();
-    // DISP_LCD_LL_FlushBufferDMA2D(   0,
-	// 								20,
-	// 								20,
-	// 								100,
-	// 								100,
-	// 								BufferMyColor,
-    //                                 (void *)0
-	// 								);
 
     LvglInitApp();
 
     static uint32_t HelpTimer = 0u;
-    uint32_t Iterator = 0U;
+
 
     while(1)
     {
         if(GetSysTime()-HelpTimer>=1000)
         {
             HelpTimer = GetSysTime();
-            LOG("Hello DLT! %lu Iterator: %lu", GetSysTime() ,Iterator);
+            // LOG("Hello DLT! %lu Iterator: %lu", GetSysTime());
             tooglePIN(LED3_GPIO_Port,LED2_Pin);
         }
-        Iterator++;
 
         static uint32_t SavedLvglTime =0;
         if(GetSysTime() -SavedLvglTime >= 5)
