@@ -7,6 +7,10 @@
 #include "System.h"
 #include "sd_ram.h"
 #include "dsihost.h"
+#include "dma2d.h"
+#include "ltdc.h"
+#include "OTM8009A_wrapper.h"
+#include "lvglAppMain.h"
 
 #define SW_VERSION "001"
 
@@ -31,6 +35,16 @@ void LedsInit(void)
     GPIO_Init(LED3_GPIO_Port, &GPIO_InitStruct);
 }
 /******************************************************************/
+uint32_t BufferMyColor[100*100];
+
+void FillBufer(void)
+{
+    for(int i=0; i < (100*100); i++)
+    {
+        BufferMyColor[i] = LCD_COLOR_ARGB8888_CYAN;
+    }
+}
+
 int main()
 {
     LedsInit();
@@ -44,14 +58,21 @@ int main()
     SDRAM_test();
     DSIHOST_DSI_Init();
     DMA2D_Init();
-
-    // MX_DSIHOST_DSI_Init();
-    // MX_LTDC_Init();
-    // DISP_LCD_Init(0, LCD_ORIENTATION_LANDSCAPE,&hdsi, &hltdc);
+    LTDC_Init();
+    OTM8009A_DISP_LCD_Init(0, LCD_ORIENTATION_LANDSCAPE);
     // BSP_TS_InitIT_OTM8009a();
-    //  UTIL_LCD_SetFuncDriver(&LCD_Driver);
-    //  UTIL_LCD_SetFont(&UTIL_LCD_DEFAULT_FONT);
-    //  UTIL_LCD_Clear(UTIL_LCD_COLOR_LIGHTMAGENTA);
+/**/
+    // FillBufer();
+    // DISP_LCD_LL_FlushBufferDMA2D(   0,
+	// 								20,
+	// 								20,
+	// 								100,
+	// 								100,
+	// 								BufferMyColor,
+    //                                 (void *)0
+	// 								);
+
+    LvglInitApp();
 
     static uint32_t HelpTimer = 0u;
     uint32_t Iterator = 0U;
@@ -65,5 +86,14 @@ int main()
             tooglePIN(LED3_GPIO_Port,LED2_Pin);
         }
         Iterator++;
+
+        static uint32_t SavedLvglTime =0;
+        if(GetSysTime() -SavedLvglTime >= 5)
+        {
+            SavedLvglTime = GetSysTime();
+
+            LvglProcesTask();
+        }
+
     }
 }

@@ -61,7 +61,7 @@ OTM8009A_LCD_Drv_t   OTM8009A_LCD_Driver =
   OTM8009A_GetXSize,
   OTM8009A_GetYSize,
 };
-  
+
 static OTM8009A_LCD_Ctx_t OTM8009ACtx;
 /**
   * @}

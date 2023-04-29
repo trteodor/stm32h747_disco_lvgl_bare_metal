@@ -5,13 +5,50 @@ OPT = -Og
 # Build path
 BUILD_DIR = .build
 
+
+
+######################################
+# lvgl START
+######################################
+lvgl_src_ex = $(wildcard Middlewares/lvgl/examples/)
+lvgl_src_ex1 = $(wildcard Middlewares/lvgl/examples/get_started/)
+
+lvgl_src = $(wildcard Middlewares/lvgl/src/*/)
+lvgl_src1 = $(wildcard Middlewares/lvgl/src/*/*/)
+lvgl_src2 = $(wildcard Middlewares/lvgl/src/*/*/*)
+lvgl_src3 = $(wildcard Middlewares/lvgl/src/*/*/*/*)
+
+
+DIRECTORIES_LVGL += $(sort $(dir $(wildcard $(lvgl_src_ex))))
+#DIRECTORIES_LVGL += $(sort $(dir $(wildcard $(lvgl_src_ex1))))
+DIRECTORIES_LVGL += $(sort $(dir $(wildcard $(lvgl_src))))
+DIRECTORIES_LVGL += $(sort $(dir $(wildcard $(lvgl_src1))))
+DIRECTORIES_LVGL += $(sort $(dir $(wildcard $(lvgl_src2))))
+DIRECTORIES_LVGL += $(sort $(dir $(wildcard $(lvgl_src3))))
+
+DIRECTORIES_LVGL_OUT = $(sort $(dir $(wildcard $(DIRECTORIES_LVGL))))
+
+LVGL_SRCC := $(foreach dir,$(DIRECTORIES_LVGL_OUT),$(wildcard $(dir)*.c))
+LVGL_SRCC += $(foreach dir,$(lvgl_src_ex1),$(wildcard $(dir)*.c))
+
+LVGL_INC = $(foreach dir, $(DIRECTORIES_LVGL_OUT), $(addprefix -I, $(dir)))
+######################################
+# lvgl END
+######################################
+
+
+
+
 ######################################
 # source
 ######################################
 
 
+
+
 # C sources
 C_SOURCES += APP_CM7/main.c
+C_SOURCES += APP_CM7/lvglAppMain.c
 C_SOURCES += Common/system_stm32h7xx_dualcore_boot_cm4_cm7.c
 C_SOURCES += Common/syscalls.c
 C_SOURCES += Common/sysmem.c
@@ -21,10 +58,14 @@ C_SOURCES += Drivers/SDRAM/sd_ram.c
 C_SOURCES += Drivers/SDRAM/is42s32800j/is42s32800j.c
 # C_SOURCES += Drivers/usart_dlt/usart1.c
 C_SOURCES += Drivers/usart_dlt/UART1_dlt.c
+C_SOURCES += Drivers/Disp_OTM8009A/ltdc.c
 C_SOURCES += Drivers/Disp_OTM8009A/dsihost.c
 C_SOURCES += Drivers/DMA2d/dma2d.c
+C_SOURCES += Drivers/Disp_OTM8009A/OTM8009A_wrapper.c
+C_SOURCES += Drivers/Disp_OTM8009A/otm8009a/otm8009a.c
+C_SOURCES += Drivers/Disp_OTM8009A/otm8009a/otm8009a_reg.c
 C_SOURCES += Middlewares/DLTuc/src/DLTuc.c
-
+C_SOURCES += $(LVGL_SRCC)
 # ASM sources
 ASM_SOURCES += Startup/_startup_CM7_stm32h747XIH6.s
 
@@ -57,6 +98,7 @@ C_DEFS += -DCORE_CM7
 # AS includes
 AS_INCLUDES = 
 # C includes
+C_INCLUDES += -IAPP_CM7
 C_INCLUDES += -IDrivers/CMSIS/Device/ST/STM32H7xx/Include
 C_INCLUDES += -IDrivers/CMSIS/Include
 C_INCLUDES += -IDrivers/GPIO
@@ -68,6 +110,8 @@ C_INCLUDES += -IDrivers/SDRAM
 C_INCLUDES += -IDrivers/SDRAM/is42s32800j
 C_INCLUDES += -IDrivers/Disp_OTM8009A
 C_INCLUDES += -IDrivers/DMA2d
+C_INCLUDES += -IDrivers/Disp_OTM8009A/otm8009a
+C_INCLUDES += $(LVGL_INC)
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
@@ -118,9 +162,8 @@ OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
 vpath %.s $(sort $(dir $(ASM_SOURCES)))
 
 $(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR) 
-	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
-	@echo ---------
-#	@echo CC $<
+	@$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
+	@echo CC $<
 
 $(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
 	$(AS) -c $(CFLAGS) $< -o $@

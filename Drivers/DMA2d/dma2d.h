@@ -3,7 +3,16 @@
 #define __DMA2D_H__
 
 void DMA2D_Init(void);
-void DMA2D_InitRefresh(uint32_t InitMode, uint32_t LineOffsetMode, uint32_t AlfaInvMode, uint32_t RedBlueSwap);
+void DMA2D_InitRefresh(
+                        uint32_t InitMode,
+                        uint32_t LineOffsetMode,
+                        uint32_t AlfaInvMode,
+                        uint32_t RedBlueSwap,
+                        uint32_t OutputOffset,
+                        uint32_t BytesSwap,
+                        uint32_t ColorMode
+                        );
+
 void DMA2D_SetConfig(uint32_t pdata, uint32_t DstAddress, uint32_t Width,
                             uint32_t Height, uint32_t InitMode, uint32_t ColorMode);
 

@@ -43,7 +43,11 @@
         "uart1_dlt.h": "c",
         "system.h": "c",
         "stm32h747xx.h": "c",
-        "dma2d.h": "c"
+        "dma2d.h": "c",
+        "ltdc.h": "c",
+        "otm8009a.h": "c",
+        "lvgl.h": "c",
+        "otm8009a_wrapper.h": "c"
     },
     "cortex-debug.variableUseNaturalFormat": true
 }

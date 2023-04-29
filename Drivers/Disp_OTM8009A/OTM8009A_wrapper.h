@@ -10,9 +10,10 @@
 
 
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
-#include "lcd.h"
-#include "../Components/otm8009a/otm8009a.h"
+
+#include "otm8009a.h"
+
+
 
 
 #define LCD_LAYER_0_ADDRESS                 0xD0000000U
@@ -36,20 +37,19 @@
 #define LCD_RESET_PIN                    GPIO_PIN_3
 #define LCD_RESET_PULL                   GPIO_NOPULL
 #define LCD_RESET_GPIO_PORT              GPIOG
-#define LCD_RESET_GPIO_CLK_ENABLE()      __HAL_RCC_GPIOG_CLK_ENABLE()
-#define LCD_RESET_GPIO_CLK_DISABLE()     __HAL_RCC_GPIOG_CLK_DISABLE()
+#define LCD_RESET_GPIO_CLK_ENABLE()      SET_BIT(RCC->AHB4ENR, RCC_AHB4ENR_GPIOGEN)
 
 /* LCD tearing effect pin */
 #define LCD_TE_PIN                       GPIO_PIN_2
 #define LCD_TE_GPIO_PORT                 GPIOJ
-#define LCD_TE_GPIO_CLK_ENABLE()         __HAL_RCC_GPIOJ_CLK_ENABLE()
-#define LCD_TE_GPIO_CLK_DISABLE()        __HAL_RCC_GPIOJ_CLK_DISABLE()
+#define LCD_TE_GPIO_CLK_ENABLE()         SET_BIT(RCC->AHB4ENR, RCC_AHB4ENR_GPIOJEN)
+
 
 /* Back-light control pin */
 #define LCD_BL_CTRL_PIN                  GPIO_PIN_12
 #define LCD_BL_CTRL_GPIO_PORT            GPIOJ
-#define LCD_BL_CTRL_GPIO_CLK_ENABLE()    __HAL_RCC_GPIOJ_CLK_ENABLE()
-#define LCD_BL_CTRL_GPIO_CLK_DISABLE()   __HAL_RCC_GPIOJ_CLK_DISABLE()
+#define LCD_BL_CTRL_GPIO_CLK_ENABLE()    SET_BIT(RCC->AHB4ENR, RCC_AHB4ENR_GPIOJEN)
+
 /**
   * @}
   */
@@ -136,17 +136,20 @@
 #define LCD_COLOR_ARGB8888_ST_GRAY            0xFF90989EUL
 #define LCD_COLOR_ARGB8888_ST_GRAY_LIGHT      0xFFB9C4CAUL
 
-/** @defgroup STM32H747I_DISCO_LCD_Exported_Variables Exported Variables
-  * @{
-  */
-extern const LCD_UTILS_Drv_t LCD_Driver;
-/**
-  * @}
-  */
 
-/** @defgroup STM32H747I_DISCO_LCD_Exported_Types Exported Types
-  * @{
-  */
+
+#define LCD_PIXEL_FORMAT_ARGB8888        0x00000000U   /*!< ARGB8888 LTDC pixel format */
+#define LCD_PIXEL_FORMAT_RGB888          0x00000001U   /*!< RGB888 LTDC pixel format   */
+#define LCD_PIXEL_FORMAT_RGB565          0x00000002U   /*!< RGB565 LTDC pixel format   */
+#define LCD_PIXEL_FORMAT_ARGB1555        0x00000003U   /*!< ARGB1555 LTDC pixel format */
+#define LCD_PIXEL_FORMAT_ARGB4444        0x00000004U   /*!< ARGB4444 LTDC pixel format */
+#define LCD_PIXEL_FORMAT_L8              0x00000005U   /*!< L8 LTDC pixel format       */
+#define LCD_PIXEL_FORMAT_AL44            0x00000006U   /*!< AL44 LTDC pixel format     */
+#define LCD_PIXEL_FORMAT_AL88            0x00000007U   /*!< AL88 LTDC pixel format     */
+
+
+
+
 typedef uint32_t(*ConvertColor_Func)(uint32_t);
 
 typedef struct
@@ -171,49 +174,25 @@ typedef struct
 }MX_LTDC_LayerConfig_t;
 
 
-extern DSI_HandleTypeDef   *hlcd_dsi;
-extern DMA2D_HandleTypeDef *hlcd_dma2d;
-extern LTDC_HandleTypeDef  *hlcd_ltdc;
 extern DISP_LCD_Ctx_t       Lcd_Ctx[];
 extern void               *Lcd_CompObj;
 extern OTM8009A_Object_t   OTM8009AObj;
 
 
 /* Initialization APIs */
-int32_t OTM8009A_DISP_LCD_Init(uint32_t Instance, uint32_t Orientation,DSI_HandleTypeDef *hdsi, LTDC_HandleTypeDef *hltdc);
-int32_t DISP_LCD_InitEx(uint32_t Instance, uint32_t Orientation, uint32_t PixelFormat, uint32_t Width, uint32_t Height);
-int32_t DISP_LCD_DeInit(uint32_t Instance);
+void OTM8009A_DISP_LCD_Init(uint32_t Instance, uint32_t Orientation);
 
-/* LCD specific APIs: Layer control & LCD HW reset */
-int32_t DISP_LCD_Relaod(uint32_t Instance, uint32_t ReloadType);
-int32_t DISP_LCD_SetLayerVisible(uint32_t Instance, uint32_t LayerIndex, FunctionalState State);
-int32_t DISP_LCD_SetTransparency(uint32_t Instance, uint32_t LayerIndex, uint8_t Transparency);
-int32_t DISP_LCD_SetLayerAddress(uint32_t Instance, uint32_t LayerIndex, uint32_t Address);
-int32_t DISP_LCD_SetLayerWindow(uint32_t Instance, uint16_t LayerIndex, uint16_t Xpos, uint16_t Ypos, uint16_t Width, uint16_t Height);
-int32_t DISP_LCD_SetColorKeying(uint32_t Instance, uint32_t LayerIndex, uint32_t Color);
-int32_t DISP_LCD_ResetColorKeying(uint32_t Instance, uint32_t LayerIndex);
-void    DISP_LCD_Reset(uint32_t Instance);
+void DISP_LCD_LL_FlushBufferDMA2D(
+                  uint32_t Instance,
+									uint32_t Xpos,
+									uint32_t Ypos,
+									uint32_t Width,
+									uint32_t Height,
+									uint32_t *Colormap,
+                  void(*DMAtrEndCb)(void)
+									);
 
-/* LCD generic APIs: Display control */
-int32_t DISP_LCD_DisplayOn(uint32_t Instance);
-int32_t DISP_LCD_DisplayOff(uint32_t Instance);
-int32_t DISP_LCD_SetBrightness(uint32_t Instance, uint32_t Brightness);
-int32_t DISP_LCD_GetBrightness(uint32_t Instance, uint32_t *Brightness);
-int32_t DISP_LCD_GetXSize(uint32_t Instance, uint32_t *XSize);
-int32_t DISP_LCD_GetYSize(uint32_t Instance, uint32_t *YSize);
 
-/* LCD generic APIs: Draw operations. This list of APIs is required for
-   lcd gfx utilities */
-int32_t DISP_LCD_SetActiveLayer(uint32_t Instance, uint32_t LayerIndex);
-int32_t DISP_LCD_DrawBitmap(uint32_t Instance, uint32_t Xpos, uint32_t Ypos, uint8_t *pBmp);
-int32_t DISP_LCD_DrawHLine(uint32_t Instance, uint32_t Xpos, uint32_t Ypos, uint32_t Length, uint32_t Color);
-int32_t DISP_LCD_DrawVLine(uint32_t Instance, uint32_t Xpos, uint32_t Ypos, uint32_t Length, uint32_t Color);
-int32_t DISP_LCD_FillRect(uint32_t Instance, uint32_t Xpos, uint32_t Ypos, uint32_t Width, uint32_t Height, uint32_t Color);
-int32_t DISP_LCD_ReadPixel(uint32_t Instance, uint32_t Xpos, uint32_t Ypos, uint32_t *Color);
-int32_t DISP_LCD_WritePixel(uint32_t Instance, uint32_t Xpos, uint32_t Ypos, uint32_t Color);
 
-int32_t DISP_LCD_FillRGBRect(uint32_t Instance, uint32_t Xpos, uint32_t Ypos, uint8_t *pData, uint32_t Width, uint32_t Height);
-int32_t DISP_LCD_GetPixelFormat(uint32_t Instance, uint32_t *PixelFormat);
-int32_t DISP_LCD_LL_FlushBufferDMA2D(uint32_t Instance, uint32_t Xpos, uint32_t Ypos, uint32_t Width, uint32_t Height, uint32_t *Colormap, void(*DMAtrEndCb)(void));
 
 #endif /* INC_DISPLAYOTM8009A_H_ */

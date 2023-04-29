@@ -10,24 +10,43 @@ void DMA2D_Init(void)
     SET_BIT(RCC->AHB3ENR, RCC_AHB3ENR_DMA2DEN);
 
 // #warning TODO!!!!
-    DMA2D_InitRefresh(DMA2D_R2M,DMA2D_LOM_PIXELS,DMA2D_REGULAR_ALPHA,DMA2D_RB_REGULAR);
+    // DMA2D_InitRefresh(DMA2D_R2M,DMA2D_LOM_PIXELS,DMA2D_REGULAR_ALPHA,DMA2D_RB_REGULAR);
+
+  // DMA2D_InitRefresh(
+  //                       DMA2D_R2M, /*Init mode*/
+  //                       DMA2D_LOM_PIXELS, /*Line offset mode*/
+  //                       DMA2D_REGULAR_ALPHA,
+  //                       DMA2D_RB_REGULAR,
+  //                       (Lcd_Ctx[Instance].XSize - Width), /*output offset*/
+  //                       DMA2D_BYTES_REGULAR,
+  //                       DMA2D_OUTPUT_ARGB8888
+  //                       )
+
     /* DMA2D interrupt Init */
-    NVIC_SetPriority (FMC_IRQn, (1UL << __NVIC_PRIO_BITS) - 1UL);
+    NVIC_SetPriority (DMA2D_IRQn, (1UL << __NVIC_PRIO_BITS) - 1UL);
     NVIC_EnableIRQ(DMA2D_IRQn);
 }
 
 
-void DMA2D_InitRefresh(uint32_t InitMode, uint32_t LineOffsetMode, uint32_t AlfaInvMode, uint32_t RedBlueSwap)
+void DMA2D_InitRefresh(
+                        uint32_t InitMode,
+                        uint32_t LineOffsetMode,
+                        uint32_t AlfaInvMode,
+                        uint32_t RedBlueSwap,
+                        uint32_t OutputOffset,
+                        uint32_t BytesSwap,
+                        uint32_t ColorMode
+                        )
 {
             /* DMA2D CR register configuration -------------------------------------------*/
     MODIFY_REG(DMA2D->CR, DMA2D_CR_MODE | DMA2D_CR_LOM, InitMode | LineOffsetMode);
 
     /* DMA2D OPFCCR register configuration ---------------------------------------*/
     MODIFY_REG(DMA2D->OPFCCR, DMA2D_OPFCCR_CM | DMA2D_OPFCCR_SB,
-                DMA2D_OUTPUT_RGB565 | DMA2D_RB_REGULAR);
+                ColorMode | BytesSwap);
 
     /* DMA2D OOR register configuration ------------------------------------------*/
-    MODIFY_REG(DMA2D->OOR, DMA2D_OOR_LO, 0);
+    MODIFY_REG(DMA2D->OOR, DMA2D_OOR_LO, OutputOffset);
     /* DMA2D OPFCCR AI and RBS fields setting (Output Alpha Inversion)*/
     MODIFY_REG(DMA2D->OPFCCR, (DMA2D_OPFCCR_AI | DMA2D_OPFCCR_RBS),
                 ((AlfaInvMode << DMA2D_OPFCCR_AI_Pos) | \

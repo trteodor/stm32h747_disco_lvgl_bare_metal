@@ -6,6 +6,32 @@
 
 
 void DSIHOST_DSI_Init(void);
+void DSI_ConfigFlowControl(uint32_t FlowControl);
+void DSI_Start(void);
+void DSI_ConfigFlowControl(uint32_t FlowControl);
+
+void DSI_Read(
+                    uint32_t ChannelNbr,
+                    uint8_t *Array,
+                    uint32_t Size,
+                    uint32_t Mode,
+                    uint32_t DCSCmd,
+                    uint8_t *ParametersTable);
+
+
+
+void DSI_ShortWrite(
+                        uint32_t ChannelID,
+                        uint32_t Mode,
+                        uint32_t Param1,
+                        uint32_t Param2);
+
+void DSI_LongWrite(
+                        uint32_t ChannelID,
+                        uint32_t Mode,
+                        uint32_t NbParams,
+                        uint32_t Param1,
+                        uint8_t *ParametersTable);
 
 
 /**
@@ -159,6 +185,23 @@ typedef struct
 #define DSI_PLL_OUT_DIV8            0x00000003U
 
 
+#define DSI_DCS_SHORT_PKT_WRITE_P0  0x00000005U /*!< DCS short write, no parameters      */
+#define DSI_DCS_SHORT_PKT_WRITE_P1  0x00000015U /*!< DCS short write, one parameter      */
+#define DSI_GEN_SHORT_PKT_WRITE_P0  0x00000003U /*!< Generic short write, no parameters  */
+#define DSI_GEN_SHORT_PKT_WRITE_P1  0x00000013U /*!< Generic short write, one parameter  */
+#define DSI_GEN_SHORT_PKT_WRITE_P2  0x00000023U /*!< Generic short write, two parameters */
+
+
+#define DSI_DCS_LONG_PKT_WRITE      0x00000039U /*!< DCS long write     */
+#define DSI_GEN_LONG_PKT_WRITE      0x00000029U /*!< Generic long write */
+
+#define DSI_MAX_RETURN_PKT_SIZE (0x00000037U) /*!< Maximum return packet configuration */
+
+#define DSI_DCS_SHORT_PKT_READ      0x00000006U /*!< DCS short read                     */
+#define DSI_GEN_SHORT_PKT_READ_P0   0x00000004U /*!< Generic short read, no parameters  */
+#define DSI_GEN_SHORT_PKT_READ_P1   0x00000014U /*!< Generic short read, one parameter  */
+#define DSI_GEN_SHORT_PKT_READ_P2   0x00000024U /*!< Generic short read, two parameters */
+
 
 #define DSI_FLOW_CONTROL_CRC_RX    DSI_PCR_CRCRXE
 #define DSI_FLOW_CONTROL_ECC_RX    DSI_PCR_ECCRXE
@@ -171,5 +214,8 @@ typedef struct
 
 
 #define GPIO_AF13_DSI           ((uint8_t)0x0D)   /* DSI Alternate Function mapping   */
+
+
+
 
 #endif /*__DSI_HOST_H_*/

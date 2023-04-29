@@ -11,6 +11,8 @@ static void DSIHOST_MspInit(void);
 static void DSI_Host_PeriphInit(void);
 
 
+/**************************************************************************************/
+
 void DSIHOST_DSI_Init(void)
 {
     DSIHOST_MspInit();
@@ -19,7 +21,7 @@ void DSIHOST_DSI_Init(void)
 
 
 }
-
+/**************************************************************************************/
 static void DSI_Host_PeriphInit(void)
 {
     SET_BIT(DSI->WRPCR, DSI_WRPCR_REGEN); /*!< Regulator Enable */
@@ -186,7 +188,7 @@ static void DSI_Host_PeriphInit(void)
 }
 
 
-
+/**************************************************************************************/
 static void DSI_ConfigVideoMode(void)
 {
     DSI_VidCfgTypeDef VidCfg = {0};
@@ -329,7 +331,7 @@ static void DSI_ConfigVideoMode(void)
     DSI->GVCIDR |= 0;
 }
 
-
+/**************************************************************************************/
 static void DSIHOST_MspInit(void)
 {
     GPIO_InitTypeDef GPIO_InitStruct = {0};
@@ -356,18 +358,166 @@ static void DSIHOST_MspInit(void)
     GPIO_Init(DSI_TE_GPIO_Port, &GPIO_InitStruct);
 
     /* DSI interrupt Init */
-    NVIC_SetPriority (FMC_IRQn, (1UL << __NVIC_PRIO_BITS) - 1UL);
+    NVIC_SetPriority (DSI_IRQn, (1UL << __NVIC_PRIO_BITS) - 1UL);
     NVIC_EnableIRQ(DSI_IRQn);
 }
 
-
+/**************************************************************************************/
 void DSI_ConfigFlowControl(uint32_t FlowControl)
 {
   DSI->PCR &= ~DSI_FLOW_CONTROL_ALL;
   DSI->PCR |= FlowControl;
 }
-
+/**************************************************************************************/
 void DSI_IRQHandler(void)
 {
     LOG("DSI_IRQHandler");
 }
+
+
+
+
+/**************************************************************************************/
+static void DSI_ConfigPacketHeader(
+                                   uint32_t ChannelID,
+                                   uint32_t DataType,
+                                   uint32_t Data0,
+                                   uint32_t Data1)
+{
+  /* Update the DSI packet header with new information */
+  DSI->GHCR = (DataType | (ChannelID << 6U) | (Data0 << 8U) | (Data1 << 16U));
+}
+
+/**************************************************************************************/
+void DSI_ShortWrite(
+                        uint32_t ChannelID,
+                        uint32_t Mode,
+                        uint32_t Param1,
+                        uint32_t Param2)
+{
+
+
+  /* Wait for Command FIFO Empty */
+  while ((DSI->GPSR & DSI_GPSR_CMDFE) == 0U){}
+  /* Configure the packet to send a short DCS command with 0 or 1 parameter */
+  /* Update the DSI packet header with new information */
+  DSI->GHCR = (Mode | (ChannelID << 6U) | (Param1 << 8U) | (Param2 << 16U));
+}
+/**************************************************************************************/
+void DSI_LongWrite(
+                        uint32_t ChannelID,
+                        uint32_t Mode,
+                        uint32_t NbParams,
+                        uint32_t Param1,
+                        uint8_t *ParametersTable)
+{
+  uint32_t uicounter;
+  uint32_t nbBytes;
+  uint32_t count;
+  uint32_t fifoword;
+  uint8_t *pparams = ParametersTable;
+
+  /* Wait for Command FIFO Empty */
+  while ((DSI->GPSR & DSI_GPSR_CMDFE) == 0U){}
+
+  /* Set the DCS code on payload byte 1, and the other parameters on the write FIFO command*/
+  fifoword = Param1;
+  nbBytes = (NbParams < 3U) ? NbParams : 3U;
+
+  for (count = 0U; count < nbBytes; count++)
+  {
+    fifoword |= (((uint32_t)(*(pparams + count))) << (8U + (8U * count)));
+  }
+  DSI->GPDR = fifoword;
+
+  uicounter = NbParams - nbBytes;
+  pparams += nbBytes;
+  /* Set the Next parameters on the write FIFO command*/
+  while (uicounter != 0U)
+  {
+    nbBytes = (uicounter < 4U) ? uicounter : 4U;
+    fifoword = 0U;
+    for (count = 0U; count < nbBytes; count++)
+    {
+      fifoword |= (((uint32_t)(*(pparams + count))) << (8U * count));
+    }
+    DSI->GPDR = fifoword;
+
+    uicounter -= nbBytes;
+    pparams += nbBytes;
+  }
+
+  DSI_ConfigPacketHeader(
+                         ChannelID,
+                         Mode,
+                         ((NbParams + 1U) & 0x00FFU),
+                         (((NbParams + 1U) & 0xFF00U) >> 8U));
+}
+
+
+/**************************************************************************************/
+void DSI_Read(
+                    uint32_t ChannelNbr,
+                    uint8_t *Array,
+                    uint32_t Size,
+                    uint32_t Mode,
+                    uint32_t DCSCmd,
+                    uint8_t *ParametersTable)
+{
+  uint8_t *pdata = Array;
+  uint32_t datasize = Size;
+  uint32_t fifoword;
+  uint32_t nbbytes;
+  uint32_t count;
+
+  if (datasize > 2U)
+  {
+    /* set max return packet size */
+    DSI_ShortWrite(ChannelNbr, DSI_MAX_RETURN_PKT_SIZE, ((datasize) & 0xFFU),
+                       (((datasize) >> 8U) & 0xFFU));
+
+
+    DSI_ConfigPacketHeader(ChannelNbr, Mode, DCSCmd, 0U);
+  }
+
+  /* If DSI fifo is not empty, read requested bytes */
+  while (((int32_t)(datasize)) > 0)
+  {
+    if ((DSI->GPSR & DSI_GPSR_PRDFE) == 0U)
+    {
+      fifoword = DSI->GPDR;
+      nbbytes = (datasize < 4U) ? datasize : 4U;
+
+      for (count = 0U; count < nbbytes; count++)
+      {
+        *pdata = (uint8_t)(fifoword >> (8U * count));
+        pdata++;
+        datasize--;
+      }
+    }
+
+    /* Software workaround to avoid TIMEOUT when a DSI read command is   */
+    /* issued to the panel and the read data is not captured by the DSI Host */
+    /* which returns Packet Size Error.                                      */
+    /* Need to ensure that the Read command has finished before checking PSE */
+    if ((DSI->GPSR & DSI_GPSR_RCB) == 0U)
+    {
+      if ((DSI->ISR[1U] & DSI_ISR1_PSE) == DSI_ISR1_PSE)
+      {
+
+      }
+    }
+  }
+
+}
+
+
+void DSI_Start(void)
+{
+  /* Enable the DSI host */
+  SET_BIT(DSI->CR, DSI_CR_EN);
+
+  /* Enable the DSI wrapper */
+  SET_BIT(DSI->WCR, DSI_WCR_DSIEN);;
+}
+
