@@ -6,7 +6,7 @@
 
 
 #define DSI_VACT            480
-#define DSI_HACT            400      /* !!!! SCREEN DIVIDED INTO 2 AREAS !!!! */
+#define DSI_HACT            100      /* !!!! SCREEN DIVIDED INTO 4 AREAS !!!! */
 
 
 

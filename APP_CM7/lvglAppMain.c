@@ -18,7 +18,7 @@ static lv_disp_draw_buf_t disp_buf;
 #define DISCOH747_DISP_HIGH 480
 #define BufferDivider 1
 
-void BuffTransmitCpltCb(void);
+void RefreshDoneCpltCb(void);
 
 #define SDRAM_DEVICE_ADDR         0xD0000000U
 
@@ -38,12 +38,12 @@ static lv_disp_drv_t *LastDriver;
 
 void OTM8009_flush(lv_disp_drv_t * drv, const lv_area_t * area,  lv_color_t * color_map)
 {
-	OTM8009A_DisplayRefreshCommandMode((void *)color_map);
+	OTM8009A_DisplayRefreshCommandMode((void *)color_map,RefreshDoneCpltCb);
 	LastDriver = drv;
-	lv_disp_flush_ready(drv);
+	lv_disp_flush_ready(LastDriver);
 }
 
-void BuffTransmitCpltCb(void)
+void RefreshDoneCpltCb(void)
 {
 	lv_disp_flush_ready(LastDriver);
 }

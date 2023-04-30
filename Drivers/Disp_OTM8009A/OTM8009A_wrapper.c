@@ -12,13 +12,29 @@
 #include "DLTuc.h"
 #include "ltdc.h"
 
-uint8_t pColLeft[]    = {0x00, 0x00, 0x01, 0x8F}; /*   0 -> 399 */
-uint8_t pColRight[]   = {0x01, 0x90, 0x03, 0x1F}; /* 400 -> 799 */
+/* When changing these parameters, you should also change the settings of the LTDC & DSIHOST in the .ioc project
+   (set the "horizontal pixles" value 800, 400 or 200 in LTDC section and "Maximum command size" in DSIHOST section) */
+uint8_t pCols[16][4] =
+{
+    {0x00, 0x00, 0x00, 0x63}, /*   0 -> 199 */
+    {0x00, 0x64, 0x00, 0xC7}, /* 100 -> 199 */
+    {0x00, 0xC8, 0x01, 0x2B}, /* 200 -> 299 */
+    {0x01, 0x2C, 0x01, 0x8F}, /* 300 -> 399 */
+    {0x01, 0x90, 0x01, 0xF3}, /* 400 -> 499 */
+    {0x01, 0xF4, 0x02, 0x57}, /* 500 -> 599 */
+    {0x02, 0x58, 0x02, 0xBB}, /* 600 -> 699 */
+    {0x02, 0xBC, 0x03, 0x1F}, /* 600 -> 799 */
+};
+
+static volatile uint32_t LCD_ActiveRegion;
+
 uint8_t pPage[]       = {0x00, 0x00, 0x01, 0xDF}; /*   0 -> 479 */
 uint8_t pScanCol[]    = {0x02, 0x15};             /* Scan @ 533 */
 static volatile int32_t pending_buffer = -1;
 static volatile int32_t active_area = 0;
 
+#define ZONES               8       /*Divide the screen into zones to handle tearing effect*/
+#define HACT_HELPER                (OTM8009A_800X480_WIDTH / ZONES)
 
 DISP_LCD_Ctx_t       Lcd_Ctx[LCD_INSTANCES_NBR];
 OTM8009A_Object_t   OTM8009AObj;
@@ -58,18 +74,13 @@ void DSI_IO_Read(uint16_t ChannelNbr, uint16_t Reg, uint8_t *pData, uint16_t Siz
 
 void *ActualBufferPointer;
 
-void OTM8009A_DisplayRefreshCommandMode(void* BuffPtr)
+void (*RefrDonePtr)(void);
+
+
+void OTM8009A_DisplayRefreshCommandMode(void* BuffPtr,void(*RefrDoneCb)(void))
 {
-	    while(pending_buffer != -1){
-	    	// if(FunInputFlag == 0)
-	    	// {
-	    	// 	FunInputFlag = 1;
-	    	// 	pendinfBufferInrementor++;
-	    	// }
-	    }
 
-
-  pending_buffer = 1;
+  RefrDonePtr = RefrDoneCb;
 	/* UnMask the TE */
 	__DSI_UNMASK_TE();
 
@@ -82,33 +93,32 @@ void DSI_TearingEffectIRQ_Callback(void)
 {
   /* Mask the TE */
   __DSI_MASK_TE();
-  /* Refresh the right part of the display */
-  DSI_Refresh();   
+  DSI_Refresh();
+}
+
+void LCD_SetUpdateRegion(int idx)
+{
+  DSI_LongWrite(0, DSI_DCS_LONG_PKT_WRITE, 4, OTM8009A_CMD_CASET, pCols[idx]);
 }
 
 void DSI_EndOfRefreshIRQ_Callback(void)
 {
-  if(pending_buffer >= 0)
-  {
-    if(active_area == LEFT_AREA)
+    if(LCD_ActiveRegion < ZONES)
     {
-      /* Disable DSI Wrapper */
-      __DSI_WRAPPER_DISABLE();
-      /* Update LTDC configuaration */
-      LTDC_LAYER(0)->CFBAR = (uint32_t)ActualBufferPointer + 400 * 4;
-
+        /* Disable DSI Wrapper */
+        __DSI_WRAPPER_DISABLE();
+        /* Update LTDC configuaration */
+        LTDC_LAYER(0)->CFBAR  = ActualBufferPointer + LCD_ActiveRegion  * HACT_HELPER * sizeof(uint32_t);
       LTDC->SRCR |= LTDC_SRCR_IMR;
       /* Enable DSI Wrapper */
       __DSI_WRAPPER_ENABLE();
 
-      DSI_LongWrite(0, DSI_DCS_LONG_PKT_WRITE, 4, OTM8009A_CMD_CASET, pColRight);
-      /* Refresh the right part of the display */
-      DSI_Refresh();    
-
+        LCD_SetUpdateRegion(LCD_ActiveRegion++);
+        /* Refresh the right part of the display */
+        DSI_Refresh();
     }
-    else if(active_area == RIGHT_AREA)
+    else
     {
-
       /* Disable DSI Wrapper */
       __DSI_WRAPPER_DISABLE();
       /* Update LTDC configuaration */
@@ -116,12 +126,11 @@ void DSI_EndOfRefreshIRQ_Callback(void)
       LTDC->SRCR |= LTDC_SRCR_IMR;
       /* Enable DSI Wrapper */
       __DSI_WRAPPER_ENABLE();
-      
-      DSI_LongWrite(0, DSI_DCS_LONG_PKT_WRITE, 4, OTM8009A_CMD_CASET, pColLeft);
-      pending_buffer = -1;     
+
+      LCD_ActiveRegion = 0;
+      LCD_SetUpdateRegion(LCD_ActiveRegion);
+      LCD_ActiveRegion++;
     }
-  }
-  active_area = (active_area == LEFT_AREA)? RIGHT_AREA : LEFT_AREA; 
 }
 
 
@@ -183,7 +192,7 @@ void OTM8009A_DISP_LCD_Init(uint32_t Instance, uint32_t Orientation)
   __DSI_WRAPPER_DISABLE();
   LTDC_SetPitch(LCD_PIXEL_FORMAT_ARGB8888, LCD_DEFAULT_WIDTH, 0);
   __DSI_WRAPPER_ENABLE();
-  DSI_LongWrite(0, DSI_DCS_LONG_PKT_WRITE, 4, OTM8009A_CMD_CASET, pColLeft);
+  DSI_LongWrite(0, DSI_DCS_LONG_PKT_WRITE, 4, OTM8009A_CMD_CASET, pCols[0]);
   DSI_LongWrite(0, DSI_DCS_LONG_PKT_WRITE, 4, OTM8009A_CMD_PASET, pPage);
   pending_buffer = 0;
   active_area = LEFT_AREA;
