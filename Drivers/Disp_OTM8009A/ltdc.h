@@ -5,6 +5,8 @@
 
 #include "stm32h747xx.h"
 
+#define LTDC_ZONES 10
+
 #define VSYNC           1  
 #define VBP             1 
 #define VFP             1
@@ -12,9 +14,10 @@
 #define HSYNC           1
 #define HBP             1
 #define HFP             1
-#define HACT            100      /* !!!! SCREEN DIVIDED INTO 4 AREAS !!!! */
+#define HACT            (800/LTDC_ZONES)
 #define LEFT_AREA         1
 #define RIGHT_AREA        2
+
 
 
 

@@ -23,7 +23,7 @@ void LTDC_LayertCommandModeInit(uint16_t LayerIndex, uint32_t Address)
 
   /* Layer Init */
   layercfg.WindowX0 = 0;
-  layercfg.WindowX1 = 800/8 ;
+  layercfg.WindowX1 = 800/LTDC_ZONES ;
   layercfg.WindowY0 = 0;
   layercfg.WindowY1 = 480; 
   layercfg.PixelFormat = LTDC_PIXEL_FORMAT_ARGB8888;
@@ -35,7 +35,7 @@ void LTDC_LayertCommandModeInit(uint16_t LayerIndex, uint32_t Address)
   layercfg.Backcolor.Red = 0;
   layercfg.BlendingFactor1 = LTDC_BLENDING_FACTOR1_PAxCA;
   layercfg.BlendingFactor2 = LTDC_BLENDING_FACTOR2_PAxCA;
-  layercfg.ImageWidth = 800/8;
+  layercfg.ImageWidth = 800/LTDC_ZONES;
   layercfg.ImageHeight = 480;
   LTDC_ConfigLayer(&layercfg, LayerIndex); 
 }

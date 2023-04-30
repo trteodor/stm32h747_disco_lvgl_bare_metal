@@ -4,9 +4,10 @@
 
 #include "stm32h7xx.h"
 
+#define DSI_ZONES 10
 
 #define DSI_VACT            480
-#define DSI_HACT            100      /* !!!! SCREEN DIVIDED INTO 4 AREAS !!!! */
+#define DSI_HACT            (800/DSI_ZONES)      /* !!!! SCREEN DIVIDED INTO 10 AREAS !!!! */
 
 
 

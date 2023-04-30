@@ -9,7 +9,7 @@
 #include "lv_examples.h"
 #include "lv_demos.h"
 #include "OTM8009A_wrapper.h"
-
+#include "System.h"
 #include "stm32h7xx.h"
 
 static lv_disp_draw_buf_t disp_buf;
@@ -38,7 +38,7 @@ static lv_disp_drv_t *LastDriver;
 
 void OTM8009_flush(lv_disp_drv_t * drv, const lv_area_t * area,  lv_color_t * color_map)
 {
-	OTM8009A_DisplayRefreshCommandMode((void *)color_map,RefreshDoneCpltCb);
+	OTM8009A_DisplayRefreshCommandMode((void *)color_map);
 	LastDriver = drv;
 	lv_disp_flush_ready(LastDriver);
 }
@@ -76,4 +76,5 @@ void LvglProcesTask(void)
 {
     lv_task_handler();
     lv_tick_inc(5);
+
 }

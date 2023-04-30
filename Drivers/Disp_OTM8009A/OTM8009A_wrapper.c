@@ -12,38 +12,52 @@
 #include "DLTuc.h"
 #include "ltdc.h"
 
-/* When changing these parameters, you should also change the settings of the LTDC & DSIHOST in the .ioc project
-   (set the "horizontal pixles" value 800, 400 or 200 in LTDC section and "Maximum command size" in DSIHOST section) */
-uint8_t pCols[16][4] =
-{
-    {0x00, 0x00, 0x00, 0x63}, /*   0 -> 199 */
-    {0x00, 0x64, 0x00, 0xC7}, /* 100 -> 199 */
-    {0x00, 0xC8, 0x01, 0x2B}, /* 200 -> 299 */
-    {0x01, 0x2C, 0x01, 0x8F}, /* 300 -> 399 */
-    {0x01, 0x90, 0x01, 0xF3}, /* 400 -> 499 */
-    {0x01, 0xF4, 0x02, 0x57}, /* 500 -> 599 */
-    {0x02, 0x58, 0x02, 0xBB}, /* 600 -> 699 */
-    {0x02, 0xBC, 0x03, 0x1F}, /* 600 -> 799 */
-};
-
-static volatile uint32_t LCD_ActiveRegion;
-
-uint8_t pPage[]       = {0x00, 0x00, 0x01, 0xDF}; /*   0 -> 479 */
-uint8_t pScanCol[]    = {0x02, 0x15};             /* Scan @ 533 */
-static volatile int32_t pending_buffer = -1;
-static volatile int32_t active_area = 0;
-
-#define ZONES               8       /*Divide the screen into zones to handle tearing effect*/
-#define HACT_HELPER                (OTM8009A_800X480_WIDTH / ZONES)
-
-DISP_LCD_Ctx_t       Lcd_Ctx[LCD_INSTANCES_NBR];
-OTM8009A_Object_t   OTM8009AObj;
 
 #define CONVERTRGB5652ARGB8888(Color)((((((((Color) >> (11U)) & 0x1FU) * 527U) + 23U) >> (6U)) << (16U)) |\
                                      (((((((Color) >> (5U)) & 0x3FU) * 259U) + 33U) >> (6U)) << (8U)) |\
                                      (((((Color) & 0x1FU) * 527U) + 23U) >> (6U)) | (0xFF000000U))
 
-#define SDRAM_DEVICE_ADDR_WRAPPER         0xD0000000U
+
+#define ZONES               10       /*Divide the screen into zones to handle tearing effect*/
+#define HACT_HELPER                (OTM8009A_800X480_WIDTH / ZONES)
+
+/* When changing these parameters, you should also change the settings of the LTDC & DSIHOST in the .ioc project
+   (set the "horizontal pixles" value 800, 400 or 200 in LTDC section and "Maximum command size" in DSIHOST section) */
+uint8_t pCols[ZONES][4] =
+{
+{ 0x00, 0x00 , 0x00, 0x4f},
+{ 0x00, 0x50 , 0x00, 0x9f},
+{ 0x00, 0xa0 , 0x00, 0xef},
+{ 0x00, 0xf0 , 0x01, 0x3f},
+{ 0x01, 0x40 , 0x01, 0x8f},
+{ 0x01, 0x90 , 0x01, 0xdf},
+{ 0x01, 0xe0 , 0x02, 0x2f},
+{ 0x02, 0x30 , 0x02, 0x7f},
+{ 0x02, 0x80 , 0x02, 0xcf},
+{ 0x02, 0xd0 , 0x03, 0x1f}
+/*
+int main(void)
+{
+    uint16_t LowerPart=0;
+    uint16_t HigherPart=0;
+for(int i=0; i<4; i++){
+    HigherPart +=199;
+    printf("{ 0x%02x, 0x%02x , 0x%02x, 0x%02x}, \n\r",
+        LowerPart >> 8,LowerPart & 0xFF,HigherPart >> 8,HigherPart & 0xFF);
+    HigherPart +=1;
+    LowerPart += 200;}
+}
+*/
+};
+
+uint8_t pPage[]       = {0x00, 0x00, 0x01, 0xDF}; /*   0 -> 479 */
+uint8_t pScanCol[]    = {0x02, 0x15};             /* Scan @ 533 */
+
+uint8_t RefreshCompleteFlag= 1; 
+static volatile uint32_t LCD_ActiveRegion;
+
+DISP_LCD_Ctx_t       Lcd_Ctx[LCD_INSTANCES_NBR];
+OTM8009A_Object_t   OTM8009AObj;
 
 static void ConfigAndSetNecessaryGPIO(void);
 
@@ -70,30 +84,22 @@ void DSI_IO_Read(uint16_t ChannelNbr, uint16_t Reg, uint8_t *pData, uint16_t Siz
 
 
 /********************************************************************************************/
-#define LCD_FRAME_BUFFER        0xD0000000
-
 void *ActualBufferPointer;
 
-void (*RefrDonePtr)(void);
-
-
-void OTM8009A_DisplayRefreshCommandMode(void* BuffPtr,void(*RefrDoneCb)(void))
+void OTM8009A_DisplayRefreshCommandMode(void* BuffPtr)
 {
-
-  RefrDonePtr = RefrDoneCb;
+  while(RefreshCompleteFlag != 1){}
+  RefreshCompleteFlag = 0;
 	/* UnMask the TE */
 	__DSI_UNMASK_TE();
-
   ActualBufferPointer = BuffPtr;
-	LTDC_Layer1->CFBAR = (uint32_t)BuffPtr;
-	LTDC->SRCR = LTDC_SRCR_IMR;
 }
 
 void DSI_TearingEffectIRQ_Callback(void)
 {
   /* Mask the TE */
-  __DSI_MASK_TE();
   DSI_Refresh();
+  __DSI_MASK_TE();
 }
 
 void LCD_SetUpdateRegion(int idx)
@@ -103,34 +109,33 @@ void LCD_SetUpdateRegion(int idx)
 
 void DSI_EndOfRefreshIRQ_Callback(void)
 {
-    if(LCD_ActiveRegion < ZONES)
-    {
-        /* Disable DSI Wrapper */
-        __DSI_WRAPPER_DISABLE();
-        /* Update LTDC configuaration */
-        LTDC_LAYER(0)->CFBAR  = ActualBufferPointer + LCD_ActiveRegion  * HACT_HELPER * sizeof(uint32_t);
-      LTDC->SRCR |= LTDC_SRCR_IMR;
-      /* Enable DSI Wrapper */
-      __DSI_WRAPPER_ENABLE();
-
-        LCD_SetUpdateRegion(LCD_ActiveRegion++);
-        /* Refresh the right part of the display */
-        DSI_Refresh();
-    }
-    else
-    {
-      /* Disable DSI Wrapper */
-      __DSI_WRAPPER_DISABLE();
-      /* Update LTDC configuaration */
-      LTDC_LAYER(0)->CFBAR = (uint32_t)ActualBufferPointer;
-      LTDC->SRCR |= LTDC_SRCR_IMR;
-      /* Enable DSI Wrapper */
-      __DSI_WRAPPER_ENABLE();
-
-      LCD_ActiveRegion = 0;
-      LCD_SetUpdateRegion(LCD_ActiveRegion);
-      LCD_ActiveRegion++;
-    }
+      if(LCD_ActiveRegion < ZONES)
+      {
+          /* Disable DSI Wrapper */
+          __DSI_WRAPPER_DISABLE();
+          /* Update LTDC configuaration */
+          LTDC_LAYER(0)->CFBAR  = ActualBufferPointer + LCD_ActiveRegion  * HACT_HELPER * sizeof(uint32_t);
+          LTDC->SRCR |= LTDC_SRCR_IMR;
+          /* Enable DSI Wrapper */
+          __DSI_WRAPPER_ENABLE();
+          LCD_SetUpdateRegion(LCD_ActiveRegion);
+          LCD_ActiveRegion++;
+          /* Refresh the right part of the display */
+          DSI_Refresh();
+      }
+      else
+      {
+          /* Disable DSI Wrapper */
+          __DSI_WRAPPER_DISABLE();
+          /* Update LTDC configuaration */
+          LTDC_LAYER(0)->CFBAR = (uint32_t)ActualBufferPointer;
+          LTDC->SRCR |= LTDC_SRCR_IMR;
+          /* Enable DSI Wrapper */
+          __DSI_WRAPPER_ENABLE();
+          LCD_ActiveRegion = 0;
+          LCD_SetUpdateRegion(LCD_ActiveRegion);
+          RefreshCompleteFlag = 1;
+      }
 }
 
 
@@ -167,9 +172,8 @@ void OTM8009A_DISP_LCD_Init(uint32_t Instance, uint32_t Orientation)
       LOG("DISP_COMPONENT_COMUNICATION_FAILURE");}
     else{
       LOG("DISP_COMPONENT_COMUNICATION_SUCCESFULL");}
-
-  if(OTM8009A_Init(&OTM8009AObj, OTM8009A_COLMOD_RGB888, Orientation) != OTM8009A_OK){
-    LOG("DISP_COMPONENT_COMUNICATION_FAILURE");}
+  DelayMs(1);
+  OTM8009A_Init(&OTM8009AObj, OTM8009A_COLMOD_RGB888, Orientation);
 
   DSI_LPCmdTypeDef LLPCmd;
   LLPCmd.LPGenShortWriteNoP    = DSI_LP_GSW0P_DISABLE;
@@ -188,75 +192,14 @@ void OTM8009A_DISP_LCD_Init(uint32_t Instance, uint32_t Orientation)
   DSI_ConfigAdaptedCommandMode(&LLPCmd);
   DSI_ConfigFlowControl(DSI_FLOW_CONTROL_BTA);
   DSI_Start();
-
   __DSI_WRAPPER_DISABLE();
   LTDC_SetPitch(LCD_PIXEL_FORMAT_ARGB8888, LCD_DEFAULT_WIDTH, 0);
   __DSI_WRAPPER_ENABLE();
   DSI_LongWrite(0, DSI_DCS_LONG_PKT_WRITE, 4, OTM8009A_CMD_CASET, pCols[0]);
   DSI_LongWrite(0, DSI_DCS_LONG_PKT_WRITE, 4, OTM8009A_CMD_PASET, pPage);
-  pending_buffer = 0;
-  active_area = LEFT_AREA;
   DSI_LongWrite(0, DSI_DCS_LONG_PKT_WRITE, 2, OTM8009A_CMD_WRTESCN, pScanCol);
   __DSI_UNMASK_TE();
 }
-
-
-
-/********************************************************************************************/
-void (*DMAtrEndCbPtr)(void);
-
-void DISP_LCD_LL_FlushBufferDMA2D(
-                  uint32_t Instance,
-									uint32_t Xpos,
-									uint32_t Ypos,
-									uint32_t Width,
-									uint32_t Height,
-									uint32_t *Colormap,
-                  void(*DMAtrEndCb)(void)
-									)
-{
-  uint32_t  Xaddress;
-
-  DMAtrEndCbPtr = DMAtrEndCb;
-
-#define LCD_FB_START_ADDRESS 0xD0000000
-
-  Xaddress = LCD_FB_START_ADDRESS + (Lcd_Ctx[Instance].BppFactor*(Lcd_Ctx[Instance].XSize*Ypos + Xpos));
-
-  /* Flush the buffer using dma */
-  // DMA2D_FlushBuffer((uint32_t *)Xaddress, Width, Height, (Lcd_Ctx[Instance].XSize - Width), (uint32_t)Colormap);
-  DMA2D_InitRefresh(
-                        DMA2D_M2M, /*Init mode*/
-                        DMA2D_LOM_PIXELS, /*Line offset mode*/
-                        DMA2D_REGULAR_ALPHA,
-                        DMA2D_RB_REGULAR,
-                        (Lcd_Ctx[Instance].XSize - Width), /*output offset*/
-                        DMA2D_BYTES_REGULAR, /**/
-                        DMA2D_OUTPUT_ARGB8888 /*Color mode*/
-                        );
-
-  DMA2D_SetConfig((uint32_t)Colormap, Xaddress, Width,
-                            Height, DMA2D_M2M, DMA2D_OUTPUT_ARGB8888);
-  DMA2D_StartIT();
-}
-
-
-
-
-void DMA2D_IRQHandler(void)
-{
-  // uint32_t isrflags = READ_REG(DMA2D->ISR);
-  // uint32_t crflags = READ_REG(DMA2D->CR);
-  // DMA2D->CR &= ~(DMA2D_CR_TCIE | DMA2D_CR_TEIE | DMA2D_CR_CEIE);
-  DMA2D->IFCR = (DMA2D_ISR_TCIF | DMA2D_ISR_TEIF | DMA2D_ISR_CEIF);
-
-  if(DMAtrEndCbPtr != (void *)0)
-  {
-  DMAtrEndCbPtr();
-  }
-
-}
-
 
 /********************************************************************************************/
 static void ConfigAndSetNecessaryGPIO(void)
