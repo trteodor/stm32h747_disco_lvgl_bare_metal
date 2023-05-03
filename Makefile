@@ -1,7 +1,7 @@
 
 TARGET = h747disco_tut
 DEBUG ?= 1
-OPT = -O2
+OPT = -Og
 # Build path
 BUILD_DIR = .build
 
@@ -48,7 +48,6 @@ LVGL_INC = $(foreach dir, $(DIRECTORIES_LVGL_OUT), $(addprefix -I, $(dir)))
 # $(info ----------------)
 # $(info LVGL_SRCC: $(LVGL_SRCC) )
 # $(info ----------------)
-
 ######################################
 # lvgl END
 ######################################
@@ -81,7 +80,18 @@ C_SOURCES += Drivers/DMA2d/dma2d.c
 C_SOURCES += Drivers/Disp_OTM8009A/OTM8009A_wrapper.c
 C_SOURCES += Drivers/Disp_OTM8009A/otm8009a/otm8009a.c
 C_SOURCES += Drivers/Disp_OTM8009A/otm8009a/otm8009a_reg.c
+C_SOURCES += Drivers/TouchCntrl_ft6x06/i2c4.c
+C_SOURCES += Drivers/TouchCntrl_ft6x06/TouchC_ft6x06.c
+C_SOURCES += Drivers/TouchCntrl_ft6x06/ft6x06/ft6x06_reg.c
+C_SOURCES += Drivers/TouchCntrl_ft6x06/ft6x06/ft6x06.c
 C_SOURCES += Middlewares/DLTuc/src/DLTuc.c
+
+
+
+C_SOURCES += APP_CM7/UI_GenBySquareLineSt/ui.c
+C_SOURCES += APP_CM7/UI_GenBySquareLineSt/ui_helpers.c
+C_SOURCES += APP_CM7/UI_GenBySquareLineSt/screens/ui_Screen1.c
+C_SOURCES += APP_CM7/UI_GenBySquareLineSt/screens/ui_Screen2.c
 C_SOURCES += $(LVGL_SRCC)
 # ASM sources
 ASM_SOURCES += Startup/_startup_CM7_stm32h747XIH6.s
@@ -96,7 +106,7 @@ SZ = $(PREFIX)size
 HEX = $(CP) -O ihex
 BIN = $(CP) -O binary -S
 #######################################
-# CFLAGS
+# CFLAGSC
 #######################################
 # cpu
 CPU = -mcpu=cortex-m7
@@ -128,20 +138,25 @@ C_INCLUDES += -IDrivers/SDRAM/is42s32800j
 C_INCLUDES += -IDrivers/Disp_OTM8009A
 C_INCLUDES += -IDrivers/DMA2d
 C_INCLUDES += -IDrivers/Disp_OTM8009A/otm8009a
-C_INCLUDES += $(LVGL_INC)
+C_INCLUDES += -IDrivers/TouchCntrl_ft6x06
+C_INCLUDES += -IDrivers/TouchCntrl_ft6x06/ft6x06
+C_INCLUDES += -IAPP_CM7/UI_GenBySquareLineSt
+C_INCLUDES += -IMiddlewares
+
+C_INCLUDES += $(LVGL_INCLUDES)
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
-CFLAGS += $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
+CFLAGSC += $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
 ifeq ($(DEBUG), 1)
-CFLAGS += -g -gdwarf-2
+CFLAGSC += -g -gdwarf-2
 endif
 
 
 # Generate dependency information
-CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
+CFLAGSC += -MMD -MP -MF"$(@:%.o=%.d)"
 
 
 #######################################
@@ -179,11 +194,11 @@ OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
 vpath %.s $(sort $(dir $(ASM_SOURCES)))
 
 $(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR) 
-	@$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
+	@$(CC) -c $(CFLAGSC) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
 	@echo CC $<
 
 $(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
-	$(AS) -c $(CFLAGS) $< -o $@
+	$(AS) -c $(CFLAGSC) $< -o $@
 
 $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile
 	@echo linking...

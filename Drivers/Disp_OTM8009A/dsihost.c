@@ -498,7 +498,7 @@ void DSI_RegisterIrqCallBacks(void(*TearingEffectCb)(void), void (*EndOfRefreshC
 TearingEffectCbPtr = TearingEffectCb;
 EndOfRefreshCbPtr = EndOfRefreshCb;
 }
-
+/******************************************************************************************/
 void DSI_IRQHandler(void)
 {
   uint32_t ErrorStatus0;
@@ -532,11 +532,6 @@ void DSI_IRQHandler(void)
         }
       }
     }
-
-    // ErrorStatus0 = DSI->ISR[0U];
-    // ErrorStatus0 &= DSI->IER[0U];
-    // ErrorStatus1 = DSI->ISR[1U];
-    // ErrorStatus1 &= DSI->IER[1U];
 
 }
 
@@ -674,8 +669,7 @@ void DSI_Read(
   }
 
 }
-
-
+/******************************************************************************************/
 void DSI_Start(void)
 {
   /* Enable the DSI host */
@@ -684,11 +678,15 @@ void DSI_Start(void)
   /* Enable the DSI wrapper */
   SET_BIT(DSI->WCR, DSI_WCR_DSIEN);;
 }
-
+/******************************************************************************************/
 void DSI_Refresh(void)
 {
   /* Update the display */
   DSI->WCR |= DSI_WCR_LTDCEN;
 }
+
+
+
+
 
 

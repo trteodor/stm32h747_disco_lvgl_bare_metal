@@ -56,13 +56,13 @@ int main()
 
     SDRAM_FMC_Init();
     SDRAM_test();
-    DSIHOST_DSI_Init();
     LTDC_Init();
+    DSIHOST_DSI_Init();
 
-    DMA2D_Init();
+    // DMA2D_Init();
 
     OTM8009A_DISP_LCD_Init(0, LCD_ORIENTATION_LANDSCAPE);
-    // BSP_TS_InitIT_OTM8009a();
+    TS_InitIT_OTM8009a();
 
     LvglInitApp();
 

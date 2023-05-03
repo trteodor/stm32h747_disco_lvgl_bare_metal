@@ -50,7 +50,8 @@
         "otm8009a_wrapper.h": "c",
         "lv_demos.h": "c",
         "lv_demo_stress.h": "c",
-        "dsihost.h": "c"
+        "dsihost.h": "c",
+        "touchc_ft6x06.h": "c"
     },
     "cortex-debug.variableUseNaturalFormat": true
 }
