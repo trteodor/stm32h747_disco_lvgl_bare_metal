@@ -47,20 +47,17 @@ void FillBufer(void)
 
 int main()
 {
-    LedsInit();
-    GPIO_PinReset(LED3_GPIO_Port,LED2_Pin);
     PLL_Config480Mhz();
     ConfigSysTick1ms();
+    LedsInit();
     UART1InitTransmitWithDMAand_ucDLTlib();
     LOG("Compilation date: %s time: %s Sw_ver: %s", __DATE__, __TIME__,SW_VERSION);
 
     SDRAM_FMC_Init();
-    SDRAM_test();
+    // SDRAM_test();
     LTDC_Init();
     DSIHOST_DSI_Init();
-
     // DMA2D_Init();
-
     OTM8009A_DISP_LCD_Init(0, LCD_ORIENTATION_LANDSCAPE);
     TS_InitIT_OTM8009a();
 
@@ -85,6 +82,5 @@ int main()
 
             LvglProcesTask();
         }
-
     }
 }

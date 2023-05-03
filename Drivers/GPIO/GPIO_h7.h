@@ -10,16 +10,25 @@
 
 
 
-#define GPIO_MODE_Pos                           0U
-#define GPIO_MODE                               (0x3UL << GPIO_MODE_Pos)
-#define MODE_INPUT                              (0x0UL << GPIO_MODE_Pos)
-#define MODE_OUTPUT                             (0x1UL << GPIO_MODE_Pos)
-#define MODE_AF                                 (0x2UL << GPIO_MODE_Pos)
-#define MODE_ANALOG                             (0x3UL << GPIO_MODE_Pos)
-#define OUTPUT_TYPE_Pos                         4U
-#define OUTPUT_TYPE                             (0x1UL << OUTPUT_TYPE_Pos)
-#define OUTPUT_PP                               (0x0UL << OUTPUT_TYPE_Pos)
-#define OUTPUT_OD                               (0x1UL << OUTPUT_TYPE_Pos)
+#define GPIO_MODE_Pos                           0u
+#define GPIO_MODE                               (0x3uL << GPIO_MODE_Pos)
+#define MODE_INPUT                              (0x0uL << GPIO_MODE_Pos)
+#define MODE_OUTPUT                             (0x1uL << GPIO_MODE_Pos)
+#define MODE_AF                                 (0x2uL << GPIO_MODE_Pos)
+#define MODE_ANALOG                             (0x3uL << GPIO_MODE_Pos)
+#define OUTPUT_TYPE_Pos                         4u
+#define OUTPUT_TYPE                             (0x1uL << OUTPUT_TYPE_Pos)
+#define OUTPUT_PP                               (0x0uL << OUTPUT_TYPE_Pos)
+#define OUTPUT_OD                               (0x1uL << OUTPUT_TYPE_Pos)
+#define EXTI_MODE_Pos                           16u
+#define EXTI_MODE                               (0x3uL << EXTI_MODE_Pos)
+#define EXTI_IT                                 (0x1uL << EXTI_MODE_Pos)
+#define EXTI_EVT                                (0x2uL << EXTI_MODE_Pos)
+#define TRIGGER_MODE_Pos                         20u
+#define TRIGGER_MODE                            (0x7uL << TRIGGER_MODE_Pos)
+#define TRIGGER_RISING                          (0x1uL << TRIGGER_MODE_Pos)
+#define TRIGGER_FALLING                         (0x2uL << TRIGGER_MODE_Pos)
+#define TRIGGER_LEVEL                           (0x4uL << TRIGGER_MODE_Pos)
 
 
 #define GPIO_AF11_ETH           ((uint8_t)0x0BU)  /* ETHERNET Alternate Function mapping */
@@ -30,11 +39,19 @@
 #define  GPIO_SPEED_FREQ_VERY_HIGH   0x00000003U  /*!< range 50 MHz to 200 MHz, please refer to the product datasheet  */
 
 
-#define  GPIO_MODE_INPUT                        MODE_INPUT                                                  /*!< Input Floating Mode                   */
-#define  GPIO_MODE_OUTPUT_PP                    (MODE_OUTPUT | OUTPUT_PP)                                   /*!< Output Push Pull Mode                 */
-#define  GPIO_MODE_OUTPUT_OD                    (MODE_OUTPUT | OUTPUT_OD)                                   /*!< Output Open Drain Mode                */
-#define  GPIO_MODE_AF_PP                        (MODE_AF | OUTPUT_PP)                                       /*!< Alternate Function Push Pull Mode     */
-#define  GPIO_MODE_AF_OD                        (MODE_AF | OUTPUT_OD)                                       /*!< Alternate Function Open Drain Mode    */
+#define GPIO_MODE_INPUT                 MODE_INPUT                                                  /*!< Input Floating Mode                                                */
+#define GPIO_MODE_OUTPUT_PP             (MODE_OUTPUT | OUTPUT_PP)                                   /*!< Output Push Pull Mode                                              */
+#define GPIO_MODE_OUTPUT_OD             (MODE_OUTPUT | OUTPUT_OD)                                   /*!< Output Open Drain Mode                                             */
+#define GPIO_MODE_AF_PP                 (MODE_AF | OUTPUT_PP)                                       /*!< Alternate Function Push Pull Mode                                  */
+#define GPIO_MODE_AF_OD                 (MODE_AF | OUTPUT_OD)                                       /*!< Alternate Function Open Drain Mode                                 */
+#define GPIO_MODE_ANALOG                MODE_ANALOG                                                 /*!< Analog Mode                                                        */
+#define GPIO_MODE_IT_RISING             (MODE_INPUT | EXTI_IT | TRIGGER_RISING)                     /*!< External Interrupt Mode with Rising edge trigger detection         */
+#define GPIO_MODE_IT_FALLING            (MODE_INPUT | EXTI_IT | TRIGGER_FALLING)                    /*!< External Interrupt Mode with Falling edge trigger detection        */
+#define GPIO_MODE_IT_RISING_FALLING     (MODE_INPUT | EXTI_IT | TRIGGER_RISING | TRIGGER_FALLING)   /*!< External Interrupt Mode with Rising/Falling edge trigger detection */
+
+#define GPIO_MODE_EVT_RISING            (MODE_INPUT | EXTI_EVT | TRIGGER_RISING)                    /*!< External Event Mode with Rising edge trigger detection             */
+#define GPIO_MODE_EVT_FALLING           (MODE_INPUT | EXTI_EVT | TRIGGER_FALLING)                   /*!< External Event Mode with Falling edge trigger detection            */
+#define GPIO_MODE_EVT_RISING_FALLING    (MODE_INPUT | EXTI_EVT | TRIGGER_RISING | TRIGGER_FALLING)  /*!< External Event Mode with Rising/Falling edge trigger detection     */
 
 
 #define  GPIO_NOPULL        0x00000000U   /*!< No Pull-up or Pull-down activation  */
@@ -61,20 +78,38 @@
 #define GPIO_PIN_All               ((uint16_t)0xFFFF)  /* All pins selected */
 
 
+/** @defgroup GPIOEx_Get_Port_Index GPIO Get Port Index
+  * @{
+  */
+#if defined(GPIOI)
+#define GPIO_GET_INDEX(__GPIOx__)  (((__GPIOx__) == (GPIOA))? 0UL :\
+                                    ((__GPIOx__) == (GPIOB))? 1UL :\
+                                    ((__GPIOx__) == (GPIOC))? 2UL :\
+                                    ((__GPIOx__) == (GPIOD))? 3UL :\
+                                    ((__GPIOx__) == (GPIOE))? 4UL :\
+                                    ((__GPIOx__) == (GPIOF))? 5UL :\
+                                    ((__GPIOx__) == (GPIOG))? 6UL :\
+                                    ((__GPIOx__) == (GPIOH))? 7UL :\
+                                    ((__GPIOx__) == (GPIOI))? 8UL :\
+                                    ((__GPIOx__) == (GPIOJ))? 9UL : 10UL)
+#else
+#define GPIO_GET_INDEX(__GPIOx__)  (((__GPIOx__) == (GPIOA))? 0UL :\
+                                    ((__GPIOx__) == (GPIOB))? 1UL :\
+                                    ((__GPIOx__) == (GPIOC))? 2UL :\
+                                    ((__GPIOx__) == (GPIOD))? 3UL :\
+                                    ((__GPIOx__) == (GPIOE))? 4UL :\
+                                    ((__GPIOx__) == (GPIOF))? 5UL :\
+                                    ((__GPIOx__) == (GPIOG))? 6UL :\
+                                    ((__GPIOx__) == (GPIOH))? 7UL :\
+                                    ((__GPIOx__) == (GPIOJ))? 9UL : 10UL)
+#endif /* GPIOI */
+
+
 
 /*
 Application pin defines
 */
-#define TOUCH_CS_Pin GPIO_PIN_12
-#define TOUCH_CS_GPIO_Port GPIOB
-#define TOUCH_IRQ_Pin GPIO_PIN_8
-#define TOUCH_IRQ_GPIO_Port GPIOA
-#define TFT_CS_Pin GPIO_PIN_15
-#define TFT_CS_GPIO_Port GPIOA
-#define TFT_DC_Pin GPIO_PIN_8
-#define TFT_DC_GPIO_Port GPIOB
-#define TFT_RST_Pin GPIO_PIN_9
-#define TFT_RST_GPIO_Port GPIOB
+
 /*
 Application pin end
 */

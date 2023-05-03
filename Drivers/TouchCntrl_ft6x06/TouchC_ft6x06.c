@@ -73,11 +73,10 @@ void TS_InitIT_OTM8009a(void) /*Gestures are not supported yet*/
 //  GestureConf.DistanceZoom = 0x32;
 
   /* Touchscreen initialization */
-  // TS_Init(0, &hTS);
 //  TS_GestureConfig(0, &GestureConf);
 
   TS_Init(0, &hTS);
-  // TS_EnableIT(0);
+  TS_EnableIT(0);
 }
 /******************************************************************************************************/
 /*
@@ -165,11 +164,11 @@ int32_t TS_EnableIT(uint32_t Instance)
     gpio_init_structure.Pull = GPIO_PULLUP;
     gpio_init_structure.Speed = GPIO_SPEED_FREQ_HIGH;
     /*TODO: !!!!!*/
-    // gpio_init_structure.Mode = GPIO_MODE_IT_FALLING;
-    HAL_GPIO_Init(TS_INT_GPIO_PORT, &gpio_init_structure);
+    gpio_init_structure.Mode = GPIO_MODE_IT_FALLING;
+    GPIO_Init(TS_INT_GPIO_PORT, &gpio_init_structure);
     Ts_Drv->EnableIT(Ts_CompObj[Instance]);
-    HAL_NVIC_SetPriority((IRQn_Type)(TS_INT_EXTI_IRQn), 0x05, 0x00);
-    HAL_NVIC_EnableIRQ((IRQn_Type)(TS_INT_EXTI_IRQn));
+    NVIC_SetPriority ((IRQn_Type)(TS_INT_EXTI_IRQn), (1UL << __NVIC_PRIO_BITS) - 1UL);
+    NVIC_EnableIRQ((IRQn_Type)(TS_INT_EXTI_IRQn));
   }
   // return ret;
 }

@@ -47,7 +47,7 @@ void TouchCntrlFt6x06_Read(lv_indev_drv_t * drv, lv_indev_data_t*data)
 {
 	static TouchStateFt6x06_t PreviousTouchState;
 
-	// if(BSP_TS_GetIT_State_OTM8009a() == Touch_IRQ_FlagSet_ft6x06 || PreviousTouchState == Touch_Touched_ft6x06 )
+	if(TS_GetIT_State_OTM8009a() == Touch_IRQ_FlagSet_ft6x06 || PreviousTouchState == Touch_Touched_ft6x06 )
 	{
 		int16_t readX,readY;
 
@@ -66,10 +66,10 @@ void TouchCntrlFt6x06_Read(lv_indev_drv_t * drv, lv_indev_data_t*data)
 			 PreviousTouchState = Touch_Released_ft6x06;
 		}
 	}
-	// else
-	// {
-	//     data->state = LV_INDEV_STATE_RELEASED;
-	// }
+	else
+	{
+	    data->state = LV_INDEV_STATE_RELEASED;
+	}
 
 }
 
