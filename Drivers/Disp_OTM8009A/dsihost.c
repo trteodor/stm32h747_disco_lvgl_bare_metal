@@ -501,8 +501,6 @@ EndOfRefreshCbPtr = EndOfRefreshCb;
 /******************************************************************************************/
 void DSI_IRQHandler(void)
 {
-  uint32_t ErrorStatus0;
-  uint32_t ErrorStatus1;
   /* Tearing Effect Interrupt management ***************************************/
   if ( (DSI->WISR & DSI_WISR_TEIF) != 0U)
   {

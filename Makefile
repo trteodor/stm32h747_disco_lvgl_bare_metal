@@ -77,6 +77,7 @@ C_SOURCES += Drivers/usart_dlt/UART1_dlt.c
 C_SOURCES += Drivers/Disp_OTM8009A/ltdc.c
 C_SOURCES += Drivers/Disp_OTM8009A/dsihost.c
 C_SOURCES += Drivers/DMA2d/dma2d.c
+C_SOURCES += Drivers/qspi/qspi.c
 C_SOURCES += Drivers/Disp_OTM8009A/OTM8009A_wrapper.c
 C_SOURCES += Drivers/Disp_OTM8009A/otm8009a/otm8009a.c
 C_SOURCES += Drivers/Disp_OTM8009A/otm8009a/otm8009a_reg.c
@@ -137,6 +138,7 @@ C_INCLUDES += -IDrivers/SDRAM
 C_INCLUDES += -IDrivers/SDRAM/is42s32800j
 C_INCLUDES += -IDrivers/Disp_OTM8009A
 C_INCLUDES += -IDrivers/DMA2d
+C_INCLUDES += -IDrivers/qspi
 C_INCLUDES += -IDrivers/Disp_OTM8009A/otm8009a
 C_INCLUDES += -IDrivers/TouchCntrl_ft6x06
 C_INCLUDES += -IDrivers/TouchCntrl_ft6x06/ft6x06
@@ -163,7 +165,7 @@ CFLAGSC += -MMD -MP -MF"$(@:%.o=%.d)"
 # LDFLAGS
 #######################################
 # link script
-LDSCRIPT = Config/_linker_CM7_STM32F747XIH6_FLASH.ld
+LDSCRIPT = Linker/_linker_CM7_STM32F747XIH6_FLASH.ld
 
 # libraries
 LIBS = -lc -lm -lnosys 
@@ -204,6 +206,10 @@ $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile
 	@echo linking...
 	@echo ----------------------
 	@$(CC) $(OBJECTS) $(LDFLAGS) -o $@
+
+	arm-none-eabi-objcopy -O ihex $(BUILD_DIR)/h747disco_tut.elf $(BUILD_DIR)/h747disco_tut_onlyQSPI.hex  -j .qspi
+	arm-none-eabi-objcopy -O ihex $(BUILD_DIR)/h747disco_tut.elf $(BUILD_DIR)/h747disco_tut_onlyMCU.hex  -R .qspi
+	arm-none-eabi-objcopy --remove-section .qspi $(BUILD_DIR)/h747disco_tut.elf
 	$(SZ) $@
 
 $(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf | $(BUILD_DIR)

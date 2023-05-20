@@ -51,7 +51,14 @@
         "lv_demos.h": "c",
         "lv_demo_stress.h": "c",
         "dsihost.h": "c",
-        "touchc_ft6x06.h": "c"
+        "touchc_ft6x06.h": "c",
+        "qspi.h": "c",
+        "*.tcc": "c",
+        "array": "c",
+        "string_view": "c",
+        "initializer_list": "c",
+        "ranges": "c",
+        "utility": "c"
     },
     "cortex-debug.variableUseNaturalFormat": true
 }

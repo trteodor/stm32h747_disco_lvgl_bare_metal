@@ -11,6 +11,7 @@
 #include "ltdc.h"
 #include "OTM8009A_wrapper.h"
 #include "lvglAppMain.h"
+#include "qspi.h"
 
 #define SW_VERSION "001"
 
@@ -61,7 +62,13 @@ int main()
     OTM8009A_DISP_LCD_Init(0, LCD_ORIENTATION_LANDSCAPE);
     TS_InitIT_OTM8009a();
 
+
+    QSPI_Test();
+
+
     LvglInitApp();
+
+    
 
     static uint32_t HelpTimer = 0u;
 
@@ -72,14 +79,13 @@ int main()
         {
             HelpTimer = GetSysTime();
             // LOG("Hello DLT! %lu Iterator: %lu", GetSysTime());
-            tooglePIN(LED3_GPIO_Port,LED2_Pin);
+            // tooglePIN(LED3_GPIO_Port,LED2_Pin);
         }
 
         static uint32_t SavedLvglTime =0;
         if(GetSysTime() -SavedLvglTime >= 5)
         {
             SavedLvglTime = GetSysTime();
-
             LvglProcesTask();
         }
     }
