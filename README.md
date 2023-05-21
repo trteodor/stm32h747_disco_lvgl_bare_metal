@@ -13,9 +13,14 @@ All used images by LVGL lib are stored in QSPI memory. QSPI is configured in mem
 # LVGL SQUARE LINE
 Configured by default example is created using Square line studio.
 
+https://squareline.io/
+
+https://lvgl.io/
+
+
 ![LvglStudioScreenShot](https://github.com/trteodor/stm32h747_disco_lvgl_bare_metal/blob/master/Pictures/LvglStudioDemo.png)
 
-![Discoh747board](https://github.com/trteodor/stm32h747_disco_lvgl_bare_metal/blob/master/Pictures/DiscoH747ScreenShot.png)
+![Discoh747board](https://github.com/trteodor/stm32h747_disco_lvgl_bare_metal/blob/master/Pictures/h747lvgl_Photo.jpg)
 
 # PROJECT
 
