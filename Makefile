@@ -104,7 +104,7 @@ C_SOURCES += APP_CM7/UI_GenBySquareLineSt/images/ui_img_1626159260.c
 C_SOURCES += APP_CM7/UI_GenBySquareLineSt/images/ui_img_image_png.c
 C_SOURCES += APP_CM7/UI_GenBySquareLineSt/images/ui_img_image01_png.c
 C_SOURCES += APP_CM7/UI_GenBySquareLineSt/images/ui_img_image05_png.c
-
+C_SOURCES += APP_CM7/UI_GenBySquareLineSt/images/ui_img_butterfly_png.c
 
 
 
@@ -214,7 +214,7 @@ flash: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARG
 
 #flash board using STM32Cube Programmer Command line interface
 #ENV VAR: "STM32_CubeProgrammerPATH:  must be declared in your account variables
-CubeF: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin 
+CubeF: $(COMPILATION_DIR) $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin 
 	STM32_Programmer_CLI.exe -c port=SWD index=0 reset=HWrst -el \
 		"$(STM32_CubeProgrammerPATH)\ExternalLoader\MT25TL01G_STM32H747I-DISCO.stldr" \
 		-e all -d .build/h747disco_tut_FULL_IMAGE.hex -HardRst

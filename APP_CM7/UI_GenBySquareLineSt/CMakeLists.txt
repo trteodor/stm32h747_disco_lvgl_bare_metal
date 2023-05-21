@@ -5,9 +5,9 @@ SET(SOURCES screens/ui_Screen1.c
     screens/ui_Screen5.c
     ui.c
     ui_helpers.c
-    images/ui_img_1626159260.c
     images/ui_img_851485880.c
     images/ui_img_1470773777.c
+    images/ui_img_butterfly_png.c
     images/ui_img_image05_png.c
     images/ui_img_image_png.c
     images/ui_img_image01_png.c)

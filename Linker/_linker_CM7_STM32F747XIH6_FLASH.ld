@@ -44,7 +44,7 @@ SECTIONS
     *ui_img_image_png.o (.rodata .rodata*)
     *ui_img_image01_png.o (.rodata .rodata*)
     *ui_img_image05_png.o (.rodata .rodata*)
-
+    *ui_img_butterfly_png.o (.rodata .rodata*)
 
 
     . = ALIGN(4);

@@ -8,35 +8,15 @@
 void ui_Screen1_screen_init(void)
 {
     ui_Screen1 = lv_obj_create(NULL);
-    lv_obj_set_style_bg_color(ui_Screen1, lv_color_hex(0xFF00FF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_Screen1, lv_color_hex(0x95C05E), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_Screen1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Arc1 = lv_arc_create(ui_Screen1);
     lv_obj_set_width(ui_Arc1, 150);
     lv_obj_set_height(ui_Arc1, 150);
-    lv_obj_set_x(ui_Arc1, 189);
-    lv_obj_set_y(ui_Arc1, -3);
+    lv_obj_set_x(ui_Arc1, 209);
+    lv_obj_set_y(ui_Arc1, -88);
     lv_obj_set_align(ui_Arc1, LV_ALIGN_CENTER);
-
-    ui_Image1 = lv_img_create(ui_Screen1);
-    lv_img_set_src(ui_Image1, &ui_img_1626159260);
-    lv_obj_set_width(ui_Image1, LV_SIZE_CONTENT);   /// 128
-    lv_obj_set_height(ui_Image1, LV_SIZE_CONTENT);    /// 97
-    lv_obj_set_x(ui_Image1, 60);
-    lv_obj_set_y(ui_Image1, -142);
-    lv_obj_set_align(ui_Image1, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_Image1, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_Image1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-
-    ui_Image2 = lv_img_create(ui_Screen1);
-    lv_img_set_src(ui_Image2, &ui_img_1626159260);
-    lv_obj_set_width(ui_Image2, LV_SIZE_CONTENT);   /// 128
-    lv_obj_set_height(ui_Image2, LV_SIZE_CONTENT);    /// 97
-    lv_obj_set_x(ui_Image2, -136);
-    lv_obj_set_y(ui_Image2, -142);
-    lv_obj_set_align(ui_Image2, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_Image2, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_Image2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_Button2 = lv_btn_create(ui_Screen1);
     lv_obj_set_width(ui_Button2, 100);
@@ -65,22 +45,22 @@ void ui_Screen1_screen_init(void)
     ui_Slider2 = lv_slider_create(ui_Screen1);
     lv_obj_set_width(ui_Slider2, 304);
     lv_obj_set_height(ui_Slider2, 64);
-    lv_obj_set_x(ui_Slider2, -158);
-    lv_obj_set_y(ui_Slider2, -16);
+    lv_obj_set_x(ui_Slider2, -200);
+    lv_obj_set_y(ui_Slider2, 50);
     lv_obj_set_align(ui_Slider2, LV_ALIGN_CENTER);
 
     ui_Colorwheel2 = lv_colorwheel_create(ui_Screen1, true);
     lv_obj_set_width(ui_Colorwheel2, 150);
     lv_obj_set_height(ui_Colorwheel2, 150);
-    lv_obj_set_x(ui_Colorwheel2, 194);
-    lv_obj_set_y(ui_Colorwheel2, 164);
+    lv_obj_set_x(ui_Colorwheel2, 266);
+    lv_obj_set_y(ui_Colorwheel2, 84);
     lv_obj_set_align(ui_Colorwheel2, LV_ALIGN_CENTER);
 
     ui_Switch2 = lv_switch_create(ui_Screen1);
     lv_obj_set_width(ui_Switch2, 238);
     lv_obj_set_height(ui_Switch2, 109);
-    lv_obj_set_x(ui_Switch2, -246);
-    lv_obj_set_y(ui_Switch2, 110);
+    lv_obj_set_x(ui_Switch2, -256);
+    lv_obj_set_y(ui_Switch2, 172);
     lv_obj_set_align(ui_Switch2, LV_ALIGN_CENTER);
 
     ui_Chart2 = lv_chart_create(ui_Screen1);
@@ -101,10 +81,24 @@ void ui_Screen1_screen_init(void)
     ui_Spinner2 = lv_spinner_create(ui_Screen1, 1000, 90);
     lv_obj_set_width(ui_Spinner2, 184);
     lv_obj_set_height(ui_Spinner2, 155);
-    lv_obj_set_x(ui_Spinner2, 6);
-    lv_obj_set_y(ui_Spinner2, 133);
+    lv_obj_set_x(ui_Spinner2, 56);
+    lv_obj_set_y(ui_Spinner2, 139);
     lv_obj_set_align(ui_Spinner2, LV_ALIGN_CENTER);
     lv_obj_clear_flag(ui_Spinner2, LV_OBJ_FLAG_CLICKABLE);      /// Flags
+
+    ui_Image1 = lv_img_create(ui_Screen1);
+    lv_img_set_src(ui_Image1, &ui_img_butterfly_png);
+    lv_obj_set_width(ui_Image1, LV_SIZE_CONTENT);   /// 128
+    lv_obj_set_height(ui_Image1, LV_SIZE_CONTENT);    /// 97
+    lv_obj_set_x(ui_Image1, -160);
+    lv_obj_set_y(ui_Image1, -104);
+    lv_obj_set_align(ui_Image1, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_Image1, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_Image1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_shadow_color(ui_Image1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_opa(ui_Image1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui_Image1, 30, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_spread(ui_Image1, 30, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_obj_add_event_cb(ui_Button2, ui_event_Button2, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_Button5, ui_event_Button5, LV_EVENT_ALL, NULL);

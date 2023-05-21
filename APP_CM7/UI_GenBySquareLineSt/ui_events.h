@@ -10,6 +10,9 @@
 extern "C" {
 #endif
 
+void lv_demo_stress(lv_event_t * e);
+void lv_demo_benchmark(lv_event_t * e);
+
 #ifdef __cplusplus
 } /*extern "C"*/
 #endif
