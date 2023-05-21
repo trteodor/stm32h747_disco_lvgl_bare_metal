@@ -8,9 +8,16 @@
 #ifndef INC_TOUCHC_FT6X06_H_
 #define INC_TOUCHC_FT6X06_H_
 
+
+void TS_InitIT_OTM8009a(void);
+
+
 /* Includes ------------------------------------------------------------------*/
 /* Include TouchScreen component driver */
 #include "ft6x06.h"
+
+
+
 
 /** @defgroup I2C_MEMORY_ADDRESS_SIZE I2C Memory Address Size
   * @{
@@ -198,7 +205,7 @@ int32_t TS_Get_Orientation(uint32_t Instance, uint32_t *Orientation);
 int32_t TS_GetCapabilities(uint32_t Instance, TS_Capabilities_t *Capabilities);
 
 int32_t Touch_I2C4_Init(void);
-void I2C4_DeInit(void);
+int32_t I2C4_DeInit(void);
 int32_t I2C4_WriteReg(uint16_t DevAddr, uint16_t Reg, uint8_t *pData, uint16_t Length);
 int32_t I2C4_ReadReg(uint16_t DevAddr, uint16_t Reg, uint8_t *pData, uint16_t Length);
 

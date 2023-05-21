@@ -611,6 +611,7 @@ void QUADSPI_IRQHandler(void)
 #define LED3_Pin GPIO_PIN_14
 #define LED3_GPIO_Port GPIOI
 
+/*This part of code must be flashed separately...*/
 static void __attribute__((section(".qspi"), noinline)) GpioToggle(void)
 {
   tooglePIN(LED3_GPIO_Port,LED2_Pin);
@@ -988,7 +989,7 @@ QSPI_Status QSPI_EnableMemoryMappedMode(MT25TL01G_Transfer_t TransferRate)
   return ret;
 }
 
-void QSPI_Test(void)
+void QSPI_InitMemoryMappedMode(void)
 {
 
   QSPI_Init();
@@ -1023,16 +1024,16 @@ void QSPI_Test(void)
 
     LOG("QSPI_InitState %s", status? QSPI_OK:"INIT_SUCCESSFULL", "INIT,FAILED");
 
-    if(status == QSPI_OK)
-    {
-      LOG("TryExecuteFromQSPI");
-      while(1)
-      {
-      #warning Infinity loop!!!
-              GpioToggle();
-              LOG("ExecutingFromQSPI");
-      }
-    }
+    // if(status == QSPI_OK)
+    // {
+    //   LOG("TryExecute Code FromQSPI");
+    //   while(1)
+    //   {
+    //       #warning Infinity loop!!!
+    //       GpioToggle();  /*<--- This part of code must be flashed separately...*/
+    //       LOG("ExecutingFromQSPI %d", GetSysTime() );
+    //   }
+    // }
 
 }
 

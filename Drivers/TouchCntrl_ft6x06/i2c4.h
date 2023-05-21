@@ -4,9 +4,14 @@
 #define __I2C4_H_
 
 #include "stm32h747xx.h"
+#include "stdint.h"
 
+void I2C4_Init(void);
+void I2C4_Mem_Read(uint16_t DevAddress, uint16_t MemAddress,
+                                   uint16_t MemAddSize, uint8_t *pData, uint16_t Size);
 
-
+void I2C4_Mem_Write(uint16_t DevAddress, uint16_t MemAddress,
+                                    uint16_t MemAddSize, uint8_t *pData, uint16_t Size);
 
 
 #define GPIO_AF4_I2C4          ((uint8_t)0x04)  /* I2C4 Alternate Function mapping   */

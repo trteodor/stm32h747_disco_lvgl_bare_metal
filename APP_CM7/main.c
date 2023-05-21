@@ -1,28 +1,6 @@
-#include "stdint.h"
-#include "stm32h747xx.h"
-#include "GPIO_h7.h"
-#include "stdio.h"
-#include "UART1_dlt.h"
-#include "DLTuc.h"
-#include "System.h"
-#include "sd_ram.h"
-#include "dsihost.h"
-#include "dma2d.h"
-#include "ltdc.h"
-#include "OTM8009A_wrapper.h"
-#include "lvglAppMain.h"
-#include "qspi.h"
+#include "main.h"
 
-#define SW_VERSION "001"
 
-/******************************************************************/
-#define LED1_Pin GPIO_PIN_12
-#define LED1_GPIO_Port GPIOI
-#define LED2_Pin GPIO_PIN_13
-#define LED2_GPIO_Port GPIOI
-#define LED3_Pin GPIO_PIN_14
-#define LED3_GPIO_Port GPIOI
-/******************************************************************/
 void LedsInit(void)
 {
     RCC->AHB4ENR |= RCC_AHB4ENR_GPIOIEN;
@@ -35,16 +13,6 @@ void LedsInit(void)
 
     GPIO_Init(LED3_GPIO_Port, &GPIO_InitStruct);
 }
-/******************************************************************/
-uint32_t BufferMyColor[100*100];
-
-void FillBufer(void)
-{
-    for(int i=0; i < (100*100); i++)
-    {
-        BufferMyColor[i] = LCD_COLOR_ARGB8888_CYAN;
-    }
-}
 
 int main()
 {
@@ -55,6 +23,7 @@ int main()
     LOG("Compilation date: %s time: %s Sw_ver: %s", __DATE__, __TIME__,SW_VERSION);
 
     SDRAM_FMC_Init();
+    QSPI_InitMemoryMappedMode();
     // SDRAM_test();
     LTDC_Init();
     DSIHOST_DSI_Init();
@@ -63,12 +32,8 @@ int main()
     TS_InitIT_OTM8009a();
 
 
-    QSPI_Test();
-
-
     LvglInitApp();
 
-    
 
     static uint32_t HelpTimer = 0u;
 

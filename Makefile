@@ -4,7 +4,7 @@ DEBUG ?= 1
 OPT = -Og
 # Build path
 BUILD_DIR = .build
-
+COMPILATION_DIR := $(BUILD_DIR)/CompilationFiles
 
 
 ######################################
@@ -173,7 +173,10 @@ LIBDIR =
 LDFLAGS = $(MCU) -static -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
 
-all: flash $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
+
+
+
+all: $(COMPILATION_DIR) flash $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin 
 	@echo -----------------------------------------------------
 	@echo -----------------------------------------------------
 
@@ -188,18 +191,28 @@ flash: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARG
 #######################################
 # build the application
 #######################################
+
+
+
+$(COMPILATION_DIR):
+	@mkdir -p $@
+
+$(info COMPILATION_DIR: $(COMPILATION_DIR) )
+
 # list of objects
-OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
+OBJECTS = $(addprefix $(COMPILATION_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
 vpath %.c $(sort $(dir $(C_SOURCES)))
 # list of ASM program objects
-OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
+OBJECTS += $(addprefix $(COMPILATION_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
 vpath %.s $(sort $(dir $(ASM_SOURCES)))
 
-$(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR) 
-	@$(CC) -c $(CFLAGSC) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
+# $(info OBJECTS: $(OBJECTS) )
+
+$(COMPILATION_DIR)/%.o: %.c Makefile | $(BUILD_DIR) 
+	@$(CC) -c $(CFLAGSC) -Wa,-a,-ad,-alms=$(COMPILATION_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
 	@echo CC $<
 
-$(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
+$(COMPILATION_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
 	$(AS) -c $(CFLAGSC) $< -o $@
 
 $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile
@@ -207,8 +220,12 @@ $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile
 	@echo ----------------------
 	@$(CC) $(OBJECTS) $(LDFLAGS) -o $@
 
+	$(SZ) $@
+	@echo Creating QSPI dedicated hex file
 	arm-none-eabi-objcopy -O ihex $(BUILD_DIR)/h747disco_tut.elf $(BUILD_DIR)/h747disco_tut_onlyQSPI.hex  -j .qspi
+	@echo Creating MCU hex file
 	arm-none-eabi-objcopy -O ihex $(BUILD_DIR)/h747disco_tut.elf $(BUILD_DIR)/h747disco_tut_onlyMCU.hex  -R .qspi
+	@echo Removing QSPI section from ELF file
 	arm-none-eabi-objcopy --remove-section .qspi $(BUILD_DIR)/h747disco_tut.elf
 	$(SZ) $@
 
@@ -229,4 +246,4 @@ clean:
 #\
 #-c "verify_image $(BUILD_DIR)/h747disco_tut.bin" -c "reset" -c "shutdown"
 
--include $(wildcard $(BUILD_DIR)/*.d)
+-include $(wildcard $(COMPILATION_DIR)*.d)

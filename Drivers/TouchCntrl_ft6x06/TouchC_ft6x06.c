@@ -81,7 +81,7 @@ void TS_InitIT_OTM8009a(void) /*Gestures are not supported yet*/
 /******************************************************************************************************/
 /*
  * @brief TS_GetIT_State_OTM8009a(void)
- * /*IRQ TouchCntrl flag read and reset function
+ * IRQ TouchCntrl flag read and reset function
  */
 TouchIRQ_StateFt6x06_t TS_GetIT_State_OTM8009a(void)
 {
@@ -170,7 +170,7 @@ int32_t TS_EnableIT(uint32_t Instance)
     NVIC_SetPriority ((IRQn_Type)(TS_INT_EXTI_IRQn), (1UL << __NVIC_PRIO_BITS) - 1UL);
     NVIC_EnableIRQ((IRQn_Type)(TS_INT_EXTI_IRQn));
   }
-  // return ret;
+  return 0;
 }
 
 int32_t TS_GetState(uint32_t Instance, TS_State_t *TS_State)
@@ -244,7 +244,7 @@ int32_t TS_GetState(uint32_t Instance, TS_State_t *TS_State)
       TS_State->TouchY = Ts_Ctx[Instance].PreviousY[0];
     }
 
-  // return ret;
+  return 0;
 }
 
 #if (USE_TS_MULTI_TOUCH > 0)
@@ -335,16 +335,16 @@ int32_t TS_GestureConfig(uint32_t Instance, TS_Gesture_Config_t *GestureConfig)
 
 int32_t TS_GetGestureId(uint32_t Instance, uint32_t *GestureId)
 {
-  // int32_t ret = DRV_ERR_NONE;
+
   uint8_t tmp = 0;
 
   if(Instance >=TS_INSTANCES_NBR)
   {
-    // ret = DRV_ERROR_WRONG_PARAM;
+
   }/* Get gesture Id */
   else if(Ts_Drv->GetGesture(Ts_CompObj[Instance], &tmp)  < 0)
   {
-    // ret = DRV_ERROR_COMPONENT_FAILURE;
+
   }
   else
   {
@@ -377,23 +377,23 @@ int32_t TS_GetGestureId(uint32_t Instance, uint32_t *GestureId)
       break;
     }
 
-    // ret = DRV_ERR_NONE;
+    return 0;
   }
 
-  // return ret;
+  return 0;
 }
 #endif /* USE_TS_GESTURE > 0 */
 
 int32_t TS_Set_Orientation(uint32_t Instance, uint32_t Orientation)
 {
   Ts_Ctx[Instance].Orientation = Orientation;
-  // return DRV_ERR_NONE;
+  return 0;
 }
 
 int32_t TS_Get_Orientation(uint32_t Instance, uint32_t *Orientation)
 {
   *Orientation = Ts_Ctx[Instance].Orientation;
-  // return DRV_ERR_NONE;
+  return 0;
 }
 
 static int32_t FT6X06_Probe(uint32_t Instance)
@@ -469,9 +469,10 @@ int32_t Touch_I2C4_Init(void)
     return 0;
 }
 
-void I2C4_DeInit(void)
+int32_t I2C4_DeInit(void)
 {
-                     
+
+  return 0;
 }
 
 int32_t I2C4_WriteReg(uint16_t DevAddr, uint16_t Reg, uint8_t *pData, uint16_t Length)

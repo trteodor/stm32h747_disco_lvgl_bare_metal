@@ -6,7 +6,7 @@
 #include "stdint.h"
 
 
-void QSPI_Test(void);
+void QSPI_InitMemoryMappedMode(void);
 
 typedef enum
 {

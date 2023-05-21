@@ -143,7 +143,7 @@ static void I2C4_TransferConfig(uint16_t DevAddress, uint8_t Size, uint32_t Mode
   * @retval HAL status
   */
 void I2C4_Mem_Read(uint16_t DevAddress, uint16_t MemAddress,
-                                   uint16_t MemAddSize, uint8_t *pData, uint16_t Size, uint32_t Timeout)
+                                   uint16_t MemAddSize, uint8_t *pData, uint16_t Size)
 {
     while (__I2C_GET_FLAG(I2C_ISR_BUSY) == SET){}
     while (__I2C_GET_FLAG(I2C_ISR_TXIS) == SET){}
@@ -198,7 +198,7 @@ void I2C4_Mem_Read(uint16_t DevAddress, uint16_t MemAddress,
   * @retval HAL status
   */
 void I2C4_Mem_Write(uint16_t DevAddress, uint16_t MemAddress,
-                                    uint16_t MemAddSize, uint8_t *pData, uint16_t Size, uint32_t Timeout)
+                                    uint16_t MemAddSize, uint8_t *pData, uint16_t Size)
 {
     while (__I2C_GET_FLAG(I2C_ISR_BUSY) == SET){}
     while (__I2C_GET_FLAG(I2C_ISR_TXIS) == SET){}
