@@ -38,11 +38,11 @@ int main()
 
     while(1)
     {
-        if(GetSysTime()-HelpTimer>=1000)
+        if(GetSysTime()-HelpTimer>=10000)
         {
             HelpTimer = GetSysTime();
-            // LOG("Hello DLT! %lu Iterator: %lu", GetSysTime());
-            // tooglePIN(LED3_GPIO_Port,LED2_Pin);
+            LOG("StillAlive! SystemTime: %lu ", GetSysTime());
+            tooglePIN(LED3_GPIO_Port,LED2_Pin);
         }
 
         static uint32_t SavedLvglTime =0;
