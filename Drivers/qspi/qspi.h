@@ -5,6 +5,8 @@
 
 #include "stdint.h"
 
+#define QSPI_DATA __attribute__((section(".qspi"), noinline))
+
 
 void QSPI_InitMemoryMappedMode(void);
 

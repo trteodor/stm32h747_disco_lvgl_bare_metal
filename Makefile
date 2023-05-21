@@ -93,6 +93,7 @@ C_SOURCES += APP_CM7/UI_GenBySquareLineSt/ui.c
 C_SOURCES += APP_CM7/UI_GenBySquareLineSt/ui_helpers.c
 C_SOURCES += APP_CM7/UI_GenBySquareLineSt/screens/ui_Screen1.c
 C_SOURCES += APP_CM7/UI_GenBySquareLineSt/screens/ui_Screen2.c
+C_SOURCES += APP_CM7/UI_GenBySquareLineSt/images/ui_img_1626159260.c
 C_SOURCES += $(LVGL_SRCC)
 # ASM sources
 ASM_SOURCES += Startup/_startup_CM7_stm32h747XIH6.s
@@ -180,6 +181,11 @@ all: $(COMPILATION_DIR) flash $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).
 	@echo -----------------------------------------------------
 	@echo -----------------------------------------------------
 
+app: $(COMPILATION_DIR) $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin 
+	@echo -----------------------------------------------------
+	@echo -----------------------------------------------------
+
+
 # flash: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
 flash: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
 	openocd \
@@ -197,8 +203,6 @@ flash: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARG
 $(COMPILATION_DIR):
 	@mkdir -p $@
 
-$(info COMPILATION_DIR: $(COMPILATION_DIR) )
-
 # list of objects
 OBJECTS = $(addprefix $(COMPILATION_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
 vpath %.c $(sort $(dir $(C_SOURCES)))
@@ -208,6 +212,7 @@ vpath %.s $(sort $(dir $(ASM_SOURCES)))
 
 # $(info OBJECTS: $(OBJECTS) )
 
+#-Wno-unused-function #to remove lvgl warnings 
 $(COMPILATION_DIR)/%.o: %.c Makefile | $(BUILD_DIR) 
 	@$(CC) -c $(CFLAGSC) -Wa,-a,-ad,-alms=$(COMPILATION_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
 	@echo CC $<

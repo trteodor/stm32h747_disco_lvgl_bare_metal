@@ -30,6 +30,20 @@ SECTIONS
     . = ALIGN(4);
   } >FLASH
 
+   .qspi :
+  {
+    . = ALIGN(4);
+    _qspi_start = .;        /* create a global symbol at qspi start */
+    *(.qspi)         /* .qspi sections */
+    *(.qspi*)        /* .qspi* sections */
+
+    *ui_img_1626159260.o (.text .text* .rodata .rodata*)
+
+    . = ALIGN(4);
+    _qspi_end = .;         /* define a global symbols at end of qspi */
+
+  } > QSPI
+
   /* The program code and other data into "FLASH" Rom type memory */
   .text :
   {
@@ -42,7 +56,7 @@ SECTIONS
 
     KEEP (*(.init))
     KEEP (*(.fini))
-
+ 
     . = ALIGN(4);
     _etext = .;        /* define a global symbols at end of code */
   } >FLASH
@@ -56,16 +70,7 @@ SECTIONS
     . = ALIGN(4);
   } >FLASH
 
-   .qspi :
-  {
-    . = ALIGN(4);
-    _qspi_start = .;        /* create a global symbol at qspi start */
-    *(.qspi)         /* .qspi sections */
-    *(.qspi*)        /* .qspi* sections */
-    . = ALIGN(4);
-    _qspi_end = .;         /* define a global symbols at end of qspi */
 
-  } >QSPI
 
 
   .ARM.extab   : { 
