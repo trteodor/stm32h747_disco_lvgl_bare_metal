@@ -93,7 +93,25 @@ C_SOURCES += APP_CM7/UI_GenBySquareLineSt/ui.c
 C_SOURCES += APP_CM7/UI_GenBySquareLineSt/ui_helpers.c
 C_SOURCES += APP_CM7/UI_GenBySquareLineSt/screens/ui_Screen1.c
 C_SOURCES += APP_CM7/UI_GenBySquareLineSt/screens/ui_Screen2.c
+C_SOURCES += APP_CM7/UI_GenBySquareLineSt/screens/ui_Screen3.c
+C_SOURCES += APP_CM7/UI_GenBySquareLineSt/screens/ui_Screen4.c
+C_SOURCES += APP_CM7/UI_GenBySquareLineSt/screens/ui_Screen5.c
+
+C_SOURCES += APP_CM7/UI_GenBySquareLineSt/images/ui_img_393553256.c
+C_SOURCES += APP_CM7/UI_GenBySquareLineSt/images/ui_img_851485880.c
+C_SOURCES += APP_CM7/UI_GenBySquareLineSt/images/ui_img_1470773777.c
 C_SOURCES += APP_CM7/UI_GenBySquareLineSt/images/ui_img_1626159260.c
+C_SOURCES += APP_CM7/UI_GenBySquareLineSt/images/ui_img_image_png.c
+C_SOURCES += APP_CM7/UI_GenBySquareLineSt/images/ui_img_image01_png.c
+C_SOURCES += APP_CM7/UI_GenBySquareLineSt/images/ui_img_image05_png.c
+
+
+
+
+
+
+
+
 C_SOURCES += $(LVGL_SRCC)
 # ASM sources
 ASM_SOURCES += Startup/_startup_CM7_stm32h747XIH6.s

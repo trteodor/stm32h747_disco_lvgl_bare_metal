@@ -16,7 +16,7 @@ MEMORY
   RAM_D2 (xrw)   : ORIGIN = 0x30000000, LENGTH = 288K
   RAM_D3 (xrw)   : ORIGIN = 0x38000000, LENGTH = 64K
   ITCMRAM (xrw)  : ORIGIN = 0x00000000, LENGTH = 64K
-  QSPI (xrw)        : ORIGIN = 0x90000000, LENGTH = 1024K
+  QSPI (xrw)     : ORIGIN = 0x90000000, LENGTH = 131072K /*128Mbytes*/
 }
 
 /* Sections */
@@ -37,7 +37,15 @@ SECTIONS
     *(.qspi)         /* .qspi sections */
     *(.qspi*)        /* .qspi* sections */
 
+    *ui_img_393553256.o (.rodata .rodata*)
+    *ui_img_851485880.o (.rodata .rodata*)
+    *ui_img_1470773777.o (.rodata .rodata*)
     *ui_img_1626159260.o (.rodata .rodata*)
+    *ui_img_image_png.o (.rodata .rodata*)
+    *ui_img_image01_png.o (.rodata .rodata*)
+    *ui_img_image05_png.o (.rodata .rodata*)
+
+
 
     . = ALIGN(4);
     _qspi_end = .;         /* define a global symbols at end of qspi */

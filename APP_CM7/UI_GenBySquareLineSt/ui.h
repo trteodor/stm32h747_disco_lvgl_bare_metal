@@ -20,12 +20,56 @@ extern lv_obj_t * ui_Screen1;
 extern lv_obj_t * ui_Arc1;
 extern lv_obj_t * ui_Image1;
 extern lv_obj_t * ui_Image2;
+void ui_event_Button2(lv_event_t * e);
+extern lv_obj_t * ui_Button2;
+void ui_event_Button5(lv_event_t * e);
+extern lv_obj_t * ui_Button5;
+extern lv_obj_t * ui_Slider2;
+extern lv_obj_t * ui_Colorwheel2;
+extern lv_obj_t * ui_Switch2;
+extern lv_obj_t * ui_Chart2;
+extern lv_obj_t * ui_Spinner2;
 // SCREEN: ui_Screen2
 void ui_Screen2_screen_init(void);
 extern lv_obj_t * ui_Screen2;
+void ui_event_Button1(lv_event_t * e);
+extern lv_obj_t * ui_Button1;
+extern lv_obj_t * ui_Keyboard2;
+extern lv_obj_t * ui_TextArea2;
+void ui_event_Button4(lv_event_t * e);
+extern lv_obj_t * ui_Button4;
+// SCREEN: ui_Screen3
+void ui_Screen3_screen_init(void);
+extern lv_obj_t * ui_Screen3;
+extern lv_obj_t * ui_Image4;
+void ui_event_Button3(lv_event_t * e);
+extern lv_obj_t * ui_Button3;
+void ui_event_Button6(lv_event_t * e);
+extern lv_obj_t * ui_Button6;
+// SCREEN: ui_Screen4
+void ui_Screen4_screen_init(void);
+extern lv_obj_t * ui_Screen4;
+extern lv_obj_t * ui_Image5;
+void ui_event_Button8(lv_event_t * e);
+extern lv_obj_t * ui_Button8;
+void ui_event_Button9(lv_event_t * e);
+extern lv_obj_t * ui_Button9;
+// SCREEN: ui_Screen5
+void ui_Screen5_screen_init(void);
+extern lv_obj_t * ui_Screen5;
+extern lv_obj_t * ui_Image6;
+void ui_event_Button10(lv_event_t * e);
+extern lv_obj_t * ui_Button10;
+void ui_event_Button11(lv_event_t * e);
+extern lv_obj_t * ui_Button11;
 extern lv_obj_t * ui____initial_actions0;
 
 LV_IMG_DECLARE(ui_img_1626159260);    // assets\film-and-vid.png
+LV_IMG_DECLARE(ui_img_851485880);    // assets\Arrow-right.png
+LV_IMG_DECLARE(ui_img_1470773777);    // assets\Arrow-left.png
+LV_IMG_DECLARE(ui_img_image05_png);    // assets\image05.png
+LV_IMG_DECLARE(ui_img_image_png);    // assets\image.png
+LV_IMG_DECLARE(ui_img_image01_png);    // assets\image01.png
 
 void ui_init(void);
 
