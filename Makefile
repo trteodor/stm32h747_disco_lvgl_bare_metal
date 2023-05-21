@@ -194,6 +194,13 @@ flash: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARG
 	-c "flash write_image erase $(BUILD_DIR)/$(TARGET).bin 0x8000000" \
 	-c "reset" -c "shutdown"
 
+#flash board using STM32Cube Programmer Command line interface
+#ENV VAR: "STM32_CubeProgrammerPATH:  must be declared in your account variables
+CubeF: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin 
+	STM32_Programmer_CLI.exe -c port=SWD index=0 reset=HWrst -el \
+		"$(STM32_CubeProgrammerPATH)\ExternalLoader\MT25TL01G_STM32H747I-DISCO.stldr" \
+		-e all -d .build/h747disco_tut_FULL_IMAGE.hex -HardRst
+
 #######################################
 # build the application
 #######################################
@@ -225,6 +232,8 @@ $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile
 	@echo ----------------------
 	@$(CC) $(OBJECTS) $(LDFLAGS) -o $@
 
+	@echo Creating FULL hex file
+	arm-none-eabi-objcopy -O ihex $(BUILD_DIR)/h747disco_tut.elf $(BUILD_DIR)/h747disco_tut_FULL_IMAGE.hex
 	$(SZ) $@
 	@echo Creating QSPI dedicated hex file
 	arm-none-eabi-objcopy -O ihex $(BUILD_DIR)/h747disco_tut.elf $(BUILD_DIR)/h747disco_tut_onlyQSPI.hex  -j .qspi

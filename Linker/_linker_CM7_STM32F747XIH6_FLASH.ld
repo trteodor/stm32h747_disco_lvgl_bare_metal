@@ -37,7 +37,7 @@ SECTIONS
     *(.qspi)         /* .qspi sections */
     *(.qspi*)        /* .qspi* sections */
 
-    *ui_img_1626159260.o (.text .text* .rodata .rodata*)
+    *ui_img_1626159260.o (.rodata .rodata*)
 
     . = ALIGN(4);
     _qspi_end = .;         /* define a global symbols at end of qspi */
@@ -73,12 +73,12 @@ SECTIONS
 
 
 
-  .ARM.extab   : { 
+  .ARM.extab   : {
     . = ALIGN(4);
     *(.ARM.extab* .gnu.linkonce.armextab.*)
     . = ALIGN(4);
   } >FLASH
-  
+
   .ARM : {
     . = ALIGN(4);
     __exidx_start = .;
