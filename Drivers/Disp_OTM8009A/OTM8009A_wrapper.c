@@ -120,7 +120,7 @@ void DSI_EndOfRefreshIRQ_Callback(void)
           __DSI_WRAPPER_ENABLE();
           LCD_SetUpdateRegion(LCD_ActiveRegion);
           LCD_ActiveRegion++;
-          /* Refresh the right part of the display */
+          /* Refresh choosen part of the display */
           DSI_Refresh();
       }
       else
@@ -240,7 +240,7 @@ static void ConfigAndSetNecessaryGPIO(void)
 	/* Assert back-light LCD_BL_CTRL pin */
   GPIO_PinSet(LCD_BL_CTRL_GPIO_PORT,LCD_BL_CTRL_PIN);
 
-	/*Transmit Enable pin  LCD tearing effect pin in this app unused now */
+
 	/* LCD_TE_CTRL GPIO configuration */
 	LCD_TE_GPIO_CLK_ENABLE();
 
@@ -248,8 +248,6 @@ static void ConfigAndSetNecessaryGPIO(void)
     gpio_init_structure.Mode = GPIO_MODE_AF_PP;
     gpio_init_structure.Pull = GPIO_NOPULL;
     gpio_init_structure.Speed = GPIO_SPEED_FREQ_HIGH;
-    // gpio_init_structure.Alternate = GPIO_AF13_DSI;
-	GPIO_Init(LCD_TE_GPIO_PORT, &gpio_init_structure);
-	/* Assert back-light LCD_BL_CTRL pin */
-  GPIO_PinSet(LCD_TE_GPIO_PORT,LCD_TE_PIN);
+    GPIO_Init(LCD_TE_GPIO_PORT, &gpio_init_structure);
+    GPIO_PinSet(LCD_TE_GPIO_PORT,LCD_TE_PIN);
 }

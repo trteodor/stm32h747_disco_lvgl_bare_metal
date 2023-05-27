@@ -99,14 +99,14 @@ void LTDC_PeriphInit(void)
     uint32_t tmp1;
 
     LTDC_InitTypeDef LTDC_InitStruct;
-    LTDC_InitStruct.HorizontalSync = HSYNC;
-    LTDC_InitStruct.VerticalSync = VSYNC;
-    LTDC_InitStruct.AccumulatedHBP = HSYNC+HBP;
-    LTDC_InitStruct.AccumulatedVBP = VSYNC+VBP;
-    LTDC_InitStruct.AccumulatedActiveH = VSYNC+VBP+VACT;
-    LTDC_InitStruct.AccumulatedActiveW = HSYNC+HBP+HACT;
-    LTDC_InitStruct.TotalHeigh = VSYNC+VBP+VACT+VFP;
-    LTDC_InitStruct.TotalWidth = HSYNC+HBP+HACT+HFP;
+    LTDC_InitStruct.HorizontalSync = HSYNC-1;
+    LTDC_InitStruct.VerticalSync = VSYNC-1;
+    LTDC_InitStruct.AccumulatedHBP = HSYNC+HBP-1;
+    LTDC_InitStruct.AccumulatedVBP = VSYNC+VBP-1;
+    LTDC_InitStruct.AccumulatedActiveH = VSYNC+VBP+VACT-1;
+    LTDC_InitStruct.AccumulatedActiveW = HSYNC+HBP+HACT-1;
+    LTDC_InitStruct.TotalHeigh = VSYNC+VBP+VACT+VFP-1;
+    LTDC_InitStruct.TotalWidth = HSYNC+HBP+HACT+HFP-1;
     /* background value */
     LTDC_InitStruct.Backcolor.Blue = 0;
     LTDC_InitStruct.Backcolor.Green = 0;

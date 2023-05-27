@@ -7,8 +7,8 @@
 
 #define LTDC_ZONES 10
 
-#define VSYNC           1  
-#define VBP             1 
+#define VSYNC           1
+#define VBP             1
 #define VFP             1
 #define VACT            480
 #define HSYNC           1
