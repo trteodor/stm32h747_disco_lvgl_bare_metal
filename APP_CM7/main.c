@@ -31,7 +31,7 @@ int main()
     OTM8009A_DISP_LCD_Init(0, LCD_ORIENTATION_LANDSCAPE);
     TS_InitIT_OTM8009a();
 
-    LvglInitApp();
+    LvglIn itApp();
 
     static uint32_t HelpTimer = 0u;
 
